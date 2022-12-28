@@ -8,7 +8,7 @@
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 1.0.0
+ * @version 1.0.2
  */
 
 
@@ -986,6 +986,14 @@ StringArray str_split(const String* self, const char c){
 
     if(sa.len > 0){
         sa.strs = (String*)malloc(sa.len * sizeof(String));
+
+        if(sa.strs == NULL){
+            printf("\nString error at:\n");
+            printf("\n`StringArray split(const String* self, const char c)`\n\n");
+            printf("-> failed to allocate memory\n");
+            exit(1);
+        }
+
         sa.strs[0] = str_new();
         ptr = start;
 
@@ -2199,6 +2207,14 @@ int* str_to_bytes(const String* self){
     }
     
     int* bytes = (int*)malloc(self->len * sizeof(int));
+
+    if(bytes == NULL){
+        printf("\nString error at:\n");
+        printf("\n`int* to_bytes(const String* self)`\n\n");
+        printf("-> failed to allocate memory\n");
+        exit(1);
+    }
+    
     _StringCell* ptr = self->_first->_next;
     size_t i = 0;
 
