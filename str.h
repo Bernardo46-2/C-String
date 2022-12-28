@@ -445,7 +445,7 @@ void str_push_str(String* self, const String* str){
         printf("`void push_str(String* self, const String* str)`\n\n");
         printf("-> first cell of string `str` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -492,7 +492,7 @@ char str_nth(const String* self, const size_t index){
         printf("`char nth(const String* self, const size_t index)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -535,7 +535,7 @@ void str_set(String* self, const size_t index, const char c){
         printf("`void set(String* self, const size_t index, const char c)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -561,7 +561,7 @@ void str_print(const String* self){
             printf("`void print(const String* self)`\n\n");
             printf("-> first cell of string `self` is null\n");
             printf("-> could this be because a constructor was not used?\n");
-            printf("-> try using the method `String str_new()` to initialize a string");
+            printf("-> try using the method `String str_new()` to initialize a string\n");
             exit(1);
         }
 
@@ -616,7 +616,7 @@ char* str_to_chars(const String* self){
         printf("`char* to_chars(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
     
@@ -654,7 +654,7 @@ int str_find(const String* self, const char c){
         printf("`int find(const String* self, const char c)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -730,7 +730,7 @@ String str_substring(const String* self, size_t start, size_t end){
         printf("`String substring(const String* self, size_t start, size_t end)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -768,7 +768,7 @@ void str_trim(String* self){
         printf("`String* trim(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -825,7 +825,7 @@ int str_compare_to_str(const String* self, const String* str){
         printf("`int compare_to_str(const String* self, const String* str)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -834,7 +834,7 @@ int str_compare_to_str(const String* self, const String* str){
         printf("`int compare_to_str(const String* self, const String* str)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -881,7 +881,7 @@ int str_compare_to_chars(const String* self, const char* chars){
         printf("`int compare_to_chars(const String* self, const char* chars)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -953,7 +953,7 @@ StringArray str_split(const String* self, const char c){
         printf("`StringArray split(const String* self, const char c)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1033,7 +1033,7 @@ void str_replace(String* self, const char old, const char replacement){
         printf("`void replace(String* self, const char old, const char replacement)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1065,7 +1065,7 @@ void str_replace_all(String* self, const char old, const char replacement){
         printf("`void replace_all(String* self, const char old, const char replacement)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1106,7 +1106,7 @@ char str_remove(String* self, const size_t index){
         printf("`char remove(String* self, const size_t index)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1155,7 +1155,7 @@ bool str_remove_char(String* self, const char c){
         printf("`bool remove_char(String* self, const char c)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1210,7 +1210,7 @@ int str_remove_all(String* self, const char c){
         printf("`int remove_all(String* self, const char c)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1279,7 +1279,7 @@ bool str_remove_str(String* self, const String* str){
         printf("`bool remove_str(String* self, const String* str)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1288,7 +1288,7 @@ bool str_remove_str(String* self, const String* str){
         printf("`bool remove_str(String* self, const String* str)`\n\n");
         printf("-> first cell of string `str` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1385,7 +1385,7 @@ bool str_remove_chars(String* self, const char* chars){
         printf("`bool remove_chars(String* self, const char* chars)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1492,7 +1492,7 @@ String str_drain(String* self, const size_t start, const size_t end){
         printf("`String drain(String* self, const size_t start, const size_t end)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1581,7 +1581,7 @@ void str_reap(String* self, const size_t start, const size_t end){
         printf("`void reap(String* self, const size_t start, const size_t end)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1686,7 +1686,7 @@ void str_insert_str(String* self, const size_t index, const String* str){
         printf("`void insert_str(String* self, const size_t index, const String* str)`\n\n");
         printf("-> first cell of string `str` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1811,7 +1811,7 @@ bool str_starts_with_str(const String* self, const String* str){
         printf("`bool starts_with_str(const String* self, const String* str)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1820,7 +1820,7 @@ bool str_starts_with_str(const String* self, const String* str){
         printf("`bool starts_with_str(const String* self, const String* str)`\n\n");
         printf("-> first cell of string `str` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -1873,7 +1873,7 @@ bool str_starts_with_chars(const String* self, const char* chars){
         printf("`bool starts_with_chars(const String* self, const char* chars)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2013,7 +2013,7 @@ int str_find_str(const String* self, const String* str){
         printf("`int find_str(const String* self, const String* str)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2022,7 +2022,7 @@ int str_find_str(const String* self, const String* str){
         printf("`int find_str(const String* self, const String* str)`\n\n");
         printf("-> first cell of string `str` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2097,7 +2097,7 @@ int str_find_chars(const String* self, const char* chars){
         printf("`int find_chars(const String* self, const char* chars)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2194,7 +2194,7 @@ int* str_to_bytes(const String* self){
         printf("`int* to_bytes(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
     
@@ -2236,7 +2236,7 @@ int str_parse_int(const String* self){
         printf("`int parse_int(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2317,7 +2317,7 @@ double str_parse_double(const String* self){
         printf("`double parse_double(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2393,7 +2393,7 @@ bool str_parse_bool(const String* self){
         printf("`bool parse_bool(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2437,7 +2437,7 @@ void str_to_lowercase(String* self){
         printf("`void to_lowercase(String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2470,7 +2470,7 @@ void str_to_uppercase(String* self){
         printf("`void to_uppercase(String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
 
@@ -2560,7 +2560,7 @@ String str_clone(const String* self){
         printf("`String clone(const String* self)`\n\n");
         printf("-> first cell of string `self` is null\n");
         printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string");
+        printf("-> try using the method `String str_new()` to initialize a string\n");
         exit(1);
     }
     
