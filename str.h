@@ -3,12 +3,11 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include <stdbool.h>
 
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 1.0.2
+ * @version 1.0.3
  */
 
 
@@ -29,7 +28,7 @@ struct _String_t{
     size_t len;
     _StringCell* _first;
     _StringCell* _last;
-    bool (*is_empty)(const String* self);
+    int (*is_empty)(const String* self);
     void (*push)(String* self, const char c);
     void (*push_chars)(String* self, const char* chars);
     void (*push_str)(String* self, const String* str);
@@ -39,20 +38,20 @@ struct _String_t{
     void (*println)(const String* self);
     char* (*to_chars)(const String* self);
     int (*find)(const String* self, const char c);
-    bool (*contains)(const String* self, const char c);
+    int (*contains)(const String* self, const char c);
     String (*substring)(const String* self, size_t start, size_t end);
     void (*trim)(String* self);
     int (*compare_to_str)(const String* self, const String* str);
     int (*compare_to_chars)(const String* self, const char* chars);
-    bool (*equals_str)(const String* self, const String* str);
-    bool (*equals_chars)(const String* self, const char* chars);
+    int (*equals_str)(const String* self, const String* str);
+    int (*equals_chars)(const String* self, const char* chars);
     StringArray (*split)(const String* self, const char c);
     void (*replace)(String* self, const char old, const char replacement);
     void (*replace_all)(String* self, const char old, const char replacement);
-    bool (*remove_str)(String* self, const String* str);
-    bool (*remove_chars)(String* self, const char* chars);
+    int (*remove_str)(String* self, const String* str);
+    int (*remove_chars)(String* self, const char* chars);
     char (*remove)(String* self, const size_t index);
-    bool (*remove_char)(String* self, const char c);
+    int (*remove_char)(String* self, const char c);
     int (*remove_all)(String* self, const char c);
     String (*drain)(String* self, const size_t start, const size_t end);
     void (*drain_and_free)(String* self, const size_t start, const size_t end);
@@ -62,17 +61,17 @@ struct _String_t{
     void (*insert_chars)(String* self, const size_t index, const char* chars);
     int (*find_str)(const String* self, const String* str);
     int (*find_chars)(const String* self, const char* chars);
-    bool (*contains_str)(const String* self, const String* str);
-    bool (*contains_chars)(const String* self, const char* chars);
-    bool (*starts_with_str)(const String* self, const String* str);
-    bool (*starts_with_chars)(const String*self, const char* chars);
-    bool (*ends_with_str)(const String* self, const String* str);
-    bool (*ends_with_chars)(const String* self, const char* chars);
+    int (*contains_str)(const String* self, const String* str);
+    int (*contains_chars)(const String* self, const char* chars);
+    int (*starts_with_str)(const String* self, const String* str);
+    int (*starts_with_chars)(const String*self, const char* chars);
+    int (*ends_with_str)(const String* self, const String* str);
+    int (*ends_with_chars)(const String* self, const char* chars);
     int* (*to_bytes)(const String* self);
     int (*parse_int)(const String* self);
     float (*parse_float)(const String* self);
     double (*parse_double)(const String* self);
-    bool (*parse_bool)(const String* self);
+    int (*parse_bool)(const String* self);
     void (*to_lowercase)(String* self);
     void (*to_uppercase)(String* self);
     void (*title)(String* self);
@@ -93,11 +92,11 @@ struct _StringArray_t{
 _StringCell* __strcell_new(const char);
 void __strcell_free(_StringCell*);
 
-String str_new();
-String str_from(const char*);
-String str_read(const char*, const size_t);
-String str_read_line(const char*, const size_t);
-bool str_is_empty(const String*);
+String string_new();
+String string_from(const char*);
+String string_read(const char*, const size_t);
+String string_read_line(const char*, const size_t);
+int str_is_empty(const String*);
 void str_push(String*, const char);
 void str_push_chars(String*, const char*);
 void str_push_str(String*, const String*);
@@ -107,40 +106,40 @@ void str_print(const String*);
 void str_println(const String*);
 char* str_to_chars(const String*);
 int str_find(const String*, const char);
-bool str_contains(const String*, const char);
+int str_contains(const String*, const char);
 String str_substring(const String*, size_t, size_t);
 void str_trim(String*);
 int str_compare_to_str(const String*, const String*);
 int str_compare_to_chars(const String*, const char*);
-bool str_equals_str(const String*, const String*);
-bool str_equals_chars(const String*, const char*);
+int str_equals_str(const String*, const String*);
+int str_equals_chars(const String*, const char*);
 StringArray str_split(const String*, const char);
 void str_replace(String*, const char, const char);
 void str_replace_all(String*, const char, const char);
 char str_remove(String*, const size_t);
-bool str_remove_char(String*, const char);
+int str_remove_char(String*, const char);
 int str_remove_all(String*, const char);
 String str_drain(String*, const size_t, const size_t);
 void str_drain_and_free(String*, const size_t, const size_t);
 void str_reap(String*, const size_t, const size_t);
-bool str_remove_str(String*, const String*);
-bool str_remove_chars(String*, const char*);
+int str_remove_str(String*, const String*);
+int str_remove_chars(String*, const char*);
 void str_insert(String*, const size_t, const char);
 void str_insert_str(String*, const size_t, const String*);
 void str_insert_chars(String*, const size_t, const char*);
 int str_find_str(const String*, const String*);
 int str_find_chars(const String*, const char*);
-bool str_starts_with_str(const String*, const String*);
-bool str_starts_with_chars(const String*, const char*);
-bool str_ends_with_str(const String*, const String*);
-bool str_ends_with_chars(const String*, const char*);
-bool str_contains_str(const String*, const String*);
-bool str_contains_chars(const String*, const char*);
+int str_starts_with_str(const String*, const String*);
+int str_starts_with_chars(const String*, const char*);
+int str_ends_with_str(const String*, const String*);
+int str_ends_with_chars(const String*, const char*);
+int str_contains_str(const String*, const String*);
+int str_contains_chars(const String*, const char*);
 int* str_to_bytes(const String*);
 int str_parse_int(const String*);
 float str_parse_float(const String*);
 double str_parse_double(const String*);
-bool str_parse_bool(const String*);
+int str_parse_bool(const String*);
 void str_to_lowercase(String*);
 void str_to_uppercase(String*);
 void str_title(String*);
@@ -152,9 +151,16 @@ StringArray strarray_new();
 void strarray_free(StringArray*);
 
 size_t __str_strlen(const char*);
+void __str_memory_test(const char*, const void*);
+void __str_first_cell_test(const char*, const char*, const void*);
+void __str_null_reference_test(const char*, const char*, const void*);
+void __str_empty_test(const char*, const char*, const int);
+void __str_index_out_of_bounds_test(const char*, const size_t, const size_t, const int);
+void __str_invalid_index_test(const char*, const char*, const char*, const size_t, const size_t);
+void __str_nan_test(const char*, const size_t, const char);
 
 
-// ========================================== _StringCell ========================================== //
+// ========================================== StringCell ========================================== //
 
 /**
  * @brief Allocates a new StringCell for the linkedlist
@@ -166,13 +172,7 @@ size_t __str_strlen(const char*);
  */
 _StringCell* __strcell_new(const char c){
     _StringCell* self = (_StringCell*)malloc(sizeof(_StringCell));
-
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("\n`_StringCell* __strcell_new(const char c)`\n\n");
-        printf("-> failed to allocate memory\n");
-        exit(1);
-    }
+    __str_memory_test("_StringCell* __strcell_new(const char c)", self);
     
     self->_c = c;
     self->_next = NULL;
@@ -204,11 +204,11 @@ void __strcell_free(_StringCell* self){
 // ========================================== String ========================================== //
 
 /**
- * @brief Creates a new String
+ * @brief Creates a new empty String
  * 
  * @return new String 
  */
-String str_new(){
+String string_new(){
     String self;
 
     self._first = __strcell_new(' ');
@@ -276,8 +276,9 @@ String str_new(){
  * @param chars char array to be copied into the new String
  * @return new String
  */
-String str_from(const char* chars){
-    String self = str_new();
+String string_from(const char* chars){
+    String self = string_new();
+
     size_t len = __str_strlen(chars);
 
     self.push_chars(&self, chars);
@@ -292,15 +293,10 @@ String str_from(const char* chars){
  * @param max_len max length of String (it can be muted later by other methods)
  * @return new String
  */
-String str_read(const char* message, const size_t max_len){
+String string_read(const char* message, const size_t max_len){
     char* str = (char*)malloc((max_len + 1) * sizeof(char));
-
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("\n`String str_read(const char* message, const size_t max_len)`\n\n");
-        printf("-> failed to allocate memory\n");
-        exit(1);
-    }
+    char fn_name[] = "String string_read(const char* message, const size_t max_len)";
+    __str_memory_test(fn_name, str);
 
     String self;
 
@@ -308,7 +304,7 @@ String str_read(const char* message, const size_t max_len){
     scanf("%s", str);
     while(getchar() != '\n');
 
-    self = str_from(str);
+    self = string_from(str);
 
     if(str) free(str);
     return self;
@@ -321,22 +317,17 @@ String str_read(const char* message, const size_t max_len){
  * @param max_len max length of String (it can be muted later by other methods)
  * @return new String
  */
-String str_read_line(const char* message, const size_t max_len){
+String string_read_line(const char* message, const size_t max_len){
     char* str = (char*)malloc((max_len + 1) * sizeof(char));
+    char fn_name[] = "String string_read_line(const char* message, const size_t max_len)";
+    __str_memory_test(fn_name, str);
 
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("\n`String str_read_line(const char* message, const size_t max_len)`\n\n");
-        printf("-> failed to allocate memory\n");
-        exit(1);
-    }
-    
     String self;
 
     printf("%s", message);
     fgets(str, max_len + 1, stdin);
 
-    self = str_from(str);
+    self = string_from(str);
 
     if(self._last->_c == '\n')
         self.remove(&self, self.len - 1);
@@ -351,13 +342,9 @@ String str_read_line(const char* message, const size_t max_len){
  * @param self String to test
  * @return true if String is empty, false otherwise
  */
-bool str_is_empty(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("\n`bool is_empty(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+int str_is_empty(const String* self){
+    char fn_name[] = "int is_empty(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
     
     return self->_first == self->_last;
 }
@@ -369,12 +356,8 @@ bool str_is_empty(const String* self){
  * @param c char to insert
  */
 void str_push(String* self, const char c){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("\n`void push(String* self, const char c)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "void push(String* self, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
     
     if(self != NULL){
         self->_last->_next = __strcell_new(c);
@@ -391,19 +374,9 @@ void str_push(String* self, const char c){
  * @param chars char array to be inserted
  */
 void str_push_chars(String* self, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("\n`void push_chars(String* self, const char* chars)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("\n`void push_chars(String* self, const char* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "void push_chars(String* self, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
     
     size_t len = __str_strlen(chars);
     _StringCell* ptr = self->_last;
@@ -426,28 +399,10 @@ void str_push_chars(String* self, const char* chars){
  * @param str substring to be inserted
  */
 void str_push_str(String* self, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void push_str(String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`void push_str(String* self, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
-
-    if(str->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void push_str(String* self, const String* str)`\n\n");
-        printf("-> first cell of string `str` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "void push_str(String* self, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
+    __str_first_cell_test(fn_name, "str", str->_first);
 
     _StringCell* ptr1 = self->_last;
     _StringCell* ptr2 = str->_first->_next;
@@ -473,28 +428,11 @@ void str_push_str(String* self, const String* str){
  * @return char from given index
  */
 char str_nth(const String* self, const size_t index){
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`char nth(const String* self, const size_t index)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(index >= self->len){
-        printf("\nString error at: \n");
-        printf("`char nth(const String* self, const size_t index)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", index, self->len);
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`char nth(const String* self, const size_t index)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "char nth(const String* self, const size_t index)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
+    __str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
     char c = ' ';
@@ -516,28 +454,11 @@ char str_nth(const String* self, const size_t index){
  * @param c char to be placed at index
  */
 void str_set(String* self, const size_t index, const char c){
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`void set(String* self, const size_t index, const char c)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(index >= self->len){
-        printf("\nString error at: \n");
-        printf("`void set(String* self, const size_t index, const char c)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", index, self->len);
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void set(String* self, const size_t index, const char c)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "void set(String* self, const size_t index, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
+    __str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
 
     _StringCell* ptr = self->_first->_next;
 
@@ -556,14 +477,8 @@ void str_print(const String* self){
     if(self == NULL){
         printf("null");
     }else{
-        if(self->_first == NULL){
-            printf("\nString error at:\n");
-            printf("`void print(const String* self)`\n\n");
-            printf("-> first cell of string `self` is null\n");
-            printf("-> could this be because a constructor was not used?\n");
-            printf("-> try using the method `String str_new()` to initialize a string\n");
-            exit(1);
-        }
+        char fn_name[] = "void print(const String* self)";
+        __str_first_cell_test(fn_name, "self", self->_first);
 
         _StringCell* ptr = self->_first->_next;
 
@@ -595,30 +510,12 @@ void str_println(const String* self){
  * @return char array with every char in the string
  */
 char* str_to_chars(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`char* to_chars(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "char* to_chars(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     char* str = (char*)malloc((self->len + 1) * sizeof(char));
-
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("\n`char* to_chars(const String* self)`\n\n");
-        printf("-> failed to allocate memory\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`char* to_chars(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    __str_memory_test(fn_name, str);
     
     _StringCell* ptr = self->_first->_next;
     size_t i = 0;
@@ -642,21 +539,9 @@ char* str_to_chars(const String* self){
  * @return index of char if found, -1 otherwise
  */
 int str_find(const String* self, const char c){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`size_t find(const String* self, const char c)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int find(const String* self, const char c)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int find(const String* self, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     size_t index = 0;
     _StringCell* ptr = self->_first->_next;
@@ -680,7 +565,7 @@ int str_find(const String* self, const char c){
  * @param c char searched
  * @return true if char is present, false otherwise
  */
-bool str_contains(const String* self, const char c){
+int str_contains(const String* self, const char c){
     return str_find(self, c) != -1;
 }
 
@@ -697,44 +582,14 @@ bool str_contains(const String* self, const char c){
  * @return substring between start and end indexes
  */
 String str_substring(const String* self, size_t start, size_t end){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`String substring(const String* self, size_t start, size_t end)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "String substring(const String* self, size_t start, size_t end)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
+    __str_invalid_index_test(fn_name, "start", "end", start, end);
+    __str_index_out_of_bounds_test(fn_name, end, self->len, start > self->len);
 
-    if(start > end){
-        printf("\nString error at: \n");
-        printf("`String substring(const String* self, size_t start, size_t end)`\n\n");
-        printf("-> index `start` (%ld) is higher than `end` (%ld)\n", start, end);
-        exit(1);
-    }
-
-    if(end > self->len){
-        printf("\nString error at: \n");
-        printf("`String substring(const String* self, size_t start, size_t end)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", end, self->len);
-        exit(1);
-    }
-
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`String substring(const String* self, size_t start, size_t end)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`String substring(const String* self, size_t start, size_t end)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    String str = str_new();
+    String str = string_new();
     _StringCell* ptr = self->_first->_next;
 
     for(size_t i = 0; i < start; i++)
@@ -756,22 +611,10 @@ String str_substring(const String* self, size_t start, size_t end){
  * @param self base String
  */
 void str_trim(String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`String* trim(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`String* trim(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
+    char fn_name[] = "void trim(String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    
     if(!self->is_empty(self)){
         _StringCell* ptr = self->_last;
 
@@ -806,37 +649,11 @@ void str_trim(String* self){
  * @return less than 0 if self < chars, 0 if self == chars, more than 0 if self > chars
  */
 int str_compare_to_str(const String* self, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_str(const String* self, const String* str)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    if(str->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_str(const String* self, const String* str)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int compare_to_str(const String* self, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_first_cell_test(fn_name, "str", str->_first);
 
     _StringCell* ptr1 = self->_first->_next;
     _StringCell* ptr2 = str->_first->_next;
@@ -862,28 +679,10 @@ int str_compare_to_str(const String* self, const String* str){
  * @return less than 0 if self < chars, 0 if self == chars, more than 0 if self > chars
  */
 int str_compare_to_chars(const String* self, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int compare_to_chars(const String* self, const char* chars)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int compare_to_chars(const String* self, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
     size_t i = 0;
@@ -909,7 +708,7 @@ int str_compare_to_chars(const String* self, const char* chars){
  * @param str String to test
  * @return true if it is equal, false otherwise
  */
-bool str_equals_str(const String* self, const String* str){
+int str_equals_str(const String* self, const String* str){
     return str_compare_to_str(self, str) == 0;
 }
 
@@ -920,7 +719,7 @@ bool str_equals_str(const String* self, const String* str){
  * @param chars char array to test
  * @return true if it is equal, false otherwise
  */
-bool str_equals_chars(const String* self, const char* chars){
+int str_equals_chars(const String* self, const char* chars){
     return str_compare_to_chars(self, chars) == 0;
 }
 
@@ -934,29 +733,11 @@ bool str_equals_chars(const String* self, const char* chars){
  * and how many were found  
  */
 StringArray str_split(const String* self, const char c){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`StringArray split(const String* self, const char c)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`StringArray split(const String* self, const char c)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`StringArray split(const String* self, const char c)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
+    char fn_name[] = "StringArray split(const String* self, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
+    
     _StringCell* ptr = self->_first->_next;
     _StringCell* start = NULL;
     size_t index = 0;
@@ -986,15 +767,9 @@ StringArray str_split(const String* self, const char c){
 
     if(sa.len > 0){
         sa.strs = (String*)malloc(sa.len * sizeof(String));
+        __str_memory_test(fn_name, sa.strs);
 
-        if(sa.strs == NULL){
-            printf("\nString error at:\n");
-            printf("\n`StringArray split(const String* self, const char c)`\n\n");
-            printf("-> failed to allocate memory\n");
-            exit(1);
-        }
-
-        sa.strs[0] = str_new();
+        sa.strs[0] = string_new();
         ptr = start;
 
         while(ptr != NULL){
@@ -1004,7 +779,7 @@ StringArray str_split(const String* self, const char c){
                 while(ptr != NULL && ptr->_c == c);
 
                 if(ptr != NULL){
-                    sa.strs[++index] = str_new();
+                    sa.strs[++index] = string_new();
                     sa.strs[index].push(&sa.strs[index], ptr->_c);
                     ptr = ptr->_next;
                 }
@@ -1029,21 +804,9 @@ StringArray str_split(const String* self, const char c){
  * @param replacement char to replace old one
  */
 void str_replace(String* self, const char old, const char replacement){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void replace(String* self, const char old, const char replacement)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void replace(String* self, const char old, const char replacement)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "void replace(String* self, const char old, const char replacement)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
 
@@ -1061,21 +824,9 @@ void str_replace(String* self, const char old, const char replacement){
  * @param replacement char to replace old one
  */
 void str_replace_all(String* self, const char old, const char replacement){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void replace_all(String* self, const char old, const char replacement)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void replace_all(String* self, const char old, const char replacement)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "void replace_all(String* self, const char old, const char replacement)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
 
@@ -1095,28 +846,10 @@ void str_replace_all(String* self, const char old, const char replacement){
  * @return removed char
  */
 char str_remove(String* self, const size_t index){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`char remove(String* self, const size_t index)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(index >= self->len){
-        printf("\nString error at:\n");
-        printf("`char remove(String* self, const size_t index)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", index, self->len);
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`char remove(String* self, const size_t index)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "char remove(String* self, const size_t index)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
 
     char c = ' ';
 
@@ -1150,25 +883,13 @@ char str_remove(String* self, const size_t index){
  * @param c char to be removed
  * @return true if char was found and removed, false otherwise
  */
-bool str_remove_char(String* self, const char c){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_char(String* self, const char c)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_char(String* self, const char c)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+int str_remove_char(String* self, const char c){
+    char fn_name[] = "int remove_char(String* self, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
-    bool removed = false;
+    int removed = 0;
 
     while(ptr != NULL && ptr->_c != c) ptr = ptr->_next;
 
@@ -1190,7 +911,7 @@ bool str_remove_char(String* self, const char c){
         }
 
         self->len--;
-        removed = true;
+        removed = 1;
     }
 
     ptr = NULL;
@@ -1206,21 +927,9 @@ bool str_remove_char(String* self, const char c){
  * @return how many chars were removed
  */
 int str_remove_all(String* self, const char c){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int remove_all(String* self, const char c)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int remove_all(String* self, const char c)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int remove_all(String* self, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr1 = self->_first->_next;
     _StringCell* ptr2 = NULL;
@@ -1247,13 +956,13 @@ int str_remove_all(String* self, const char c){
                 ptr2->_free(ptr2);
             }
 
-            self->len--;
             removed++;
         }else{
             ptr1 = ptr1->_next;
         }
     }
 
+    self->len -= removed;
     ptr2 = NULL;
 
     return removed;
@@ -1267,40 +976,14 @@ int str_remove_all(String* self, const char c){
  * @param str substring to be searched and removed 
  * @return true if substring was found and removed from string, false otherwise
  */
-bool str_remove_str(String* self, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_str(String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-    
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_str(String* self, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
+int str_remove_str(String* self, const String* str){
+    char fn_name[] = "int remove_str(String* self, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_first_cell_test(fn_name, "str", str->_first);
 
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_str(String* self, const String* str)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    if(str->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_str(String* self, const String* str)`\n\n");
-        printf("-> first cell of string `str` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    bool removed = false;
+    int removed = 0;
     
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
         _StringCell* ptr1 = self->_first->_next;
@@ -1332,7 +1015,7 @@ bool str_remove_str(String* self, const String* str){
                     }
 
                     self->_last->_next = NULL;
-                    removed = true;
+                    removed = 1;
                 }else if(ptr3 == NULL){
                     ptr1 = ptr1->_prev;
                     ptr3 = ptr1->_next;
@@ -1344,7 +1027,7 @@ bool str_remove_str(String* self, const String* str){
 
                     ptr1->_next = ptr2;
                     ptr2->_prev = ptr1;
-                    removed = true;
+                    removed = 1;
                 }else{
                     ptr3 = str->_first->_next;
                     ptr2 = ptr1;
@@ -1373,31 +1056,13 @@ bool str_remove_str(String* self, const String* str){
  * @param chars char array to be searched and removed 
  * @return true if substring was found and removed from string, false otherwise
  */
-bool str_remove_chars(String* self, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_str(String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-    
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_str(String* self, const String* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
+int str_remove_chars(String* self, const char* chars){
+    char fn_name[] = "int remove_chars(String* self, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool remove_chars(String* self, const char* chars)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    bool removed = false;
+    int removed = 0;
     size_t len = __str_strlen(chars);
     
     if(!self->is_empty(self) && len > 0 && self->len >= len){
@@ -1431,7 +1096,7 @@ bool str_remove_chars(String* self, const char* chars){
                     }
 
                     self->_last->_next = NULL;
-                    removed = true;
+                    removed = 1;
                 }else if(index == len){
                     ptr1 = ptr1->_prev;
                     ptr3 = ptr1->_next;
@@ -1443,7 +1108,7 @@ bool str_remove_chars(String* self, const char* chars){
 
                     ptr1->_next = ptr2;
                     ptr2->_prev = ptr1;
-                    removed = true;
+                    removed = 1;
                 }else{
                     index = 0;;
                     ptr2 = ptr1;
@@ -1474,37 +1139,13 @@ bool str_remove_chars(String* self, const char* chars){
  * @return slice between `start` and `end`
  */
 String str_drain(String* self, const size_t start, const size_t end){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`String drain(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "String drain(String* self, const size_t start, const size_t end)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_index_out_of_bounds_test(fn_name, start, self->len, start > self->len);
+    __str_invalid_index_test(fn_name, "start", "end", start, end);
 
-    if(start > end){
-        printf("\nString error at:\n");
-        printf("`String drain(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> index `start` (%ld) is higher than `end` (%ld)\n", start, end);
-        exit(1);
-    }
-
-    if(end > self->len){
-        printf("\nString error at:\n");
-        printf("`String drain(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", end, self->len);
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`String drain(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    String str = str_new();
+    String str = string_new();
     _StringCell* ptr1 = self->_first->_next;
     _StringCell* ptr2 = NULL;
 
@@ -1563,36 +1204,12 @@ void str_drain_and_free(String* self, const size_t start, const size_t end){
  * @param end last index of the resulting string
  */
 void str_reap(String* self, const size_t start, const size_t end){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void reap(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(start > end){
-        printf("\nString error at:\n");
-        printf("`void reap(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> index `start` (%ld) is higher than `end` (%ld)\n", start, end);
-        exit(1);
-    }
-
-    if(end > self->len){
-        printf("\nString error at:\n");
-        printf("`void reap(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", end, self->len);
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void reap(String* self, const size_t start, const size_t end)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
+    char fn_name[] = "void reap(String* self, const size_t start, const size_t end)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_index_out_of_bounds_test(fn_name, start, self->len, start > self->len);
+    __str_invalid_index_test(fn_name, "start", "end", start, end);
+    
     _StringCell* ptr = self->_first->_next;
 
     for(size_t i = 0; i < start; i++){
@@ -1626,19 +1243,9 @@ void str_reap(String* self, const size_t start, const size_t end){
  * @param c char to insert
  */
 void str_insert(String* self, const size_t index, const char c){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void insert(String* self, const size_t index, const char c)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(index > self->len){
-        printf("\nString error at:\n");
-        printf("`void insert(String* self, const size_t index, const char c)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", index, self->len);
-        exit(1);
-    }
+    char fn_name[] = "void insert(String* self, const size_t index, const char c)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
 
     if(index == self->len){
         self->push(self, c);
@@ -1668,36 +1275,13 @@ void str_insert(String* self, const size_t index, const char c){
  * @param str substring array to be inserted
  */
 void str_insert_str(String* self, const size_t index, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void insert_str(String* self, const size_t index, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "void insert_str(String* self, const size_t index, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_first_cell_test(fn_name, "str", str->_first);
+    __str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
     
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`void insert_str(String* self, const size_t index, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
-
-    if(index > self->len){
-        printf("\nString error at:\n");
-        printf("`void insert_str(String* self, const size_t index, const String* str)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", index, self->len);
-        exit(1);
-    }
-
-    if(str->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void insert_str(String* self, const size_t index, const String* str)`\n\n");
-        printf("-> first cell of string `str` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
     if(!str->is_empty(str)){
         if(index == self->len){
             self->push_str(self, str);
@@ -1738,26 +1322,10 @@ void str_insert_str(String* self, const size_t index, const String* str){
  * @param chars char array to be inserted
  */
 void str_insert_chars(String* self, const size_t index, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void insert_chars(String* self, const size_t index, const char* chars)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-    
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("`void insert_chars(String* self, const size_t index, const char* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
-
-    if(index > self->len){
-        printf("\nString error at:\n");
-        printf("`void insert_chars(String* self, const size_t index, const char* chars)`\n\n");
-        printf("-> index `%ld` invalid for length `%ld`\n", index, self->len);
-        exit(1);
-    }
+    char fn_name[] = "void insert_chars(String* self, const size_t index, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
+    __str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
 
     size_t len = __str_strlen(chars);
 
@@ -1799,40 +1367,14 @@ void str_insert_chars(String* self, const size_t index, const char* chars){
  * @param str substring that can be present at the start of string
  * @return true if string ends with substring, false otherwise
  */
-bool str_starts_with_str(const String* self, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+int str_starts_with_str(const String* self, const String* str){
+    char fn_name[] = "int starts_with_str(const String* self, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_first_cell_test(fn_name, "str", str->_first);
     
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_str(const String* self, const String* str)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    if(str->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_str(const String* self, const String* str)`\n\n");
-        printf("-> first cell of string `str` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    bool starts_with = false;
+    int starts_with = 0;
 
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
         _StringCell* ptr1 = self->_first->_next;
@@ -1844,7 +1386,7 @@ bool str_starts_with_str(const String* self, const String* str){
         }
 
         if(ptr2 == NULL)
-            starts_with = true;
+            starts_with = 1;
 
         ptr1 = NULL;
         ptr2 = NULL;
@@ -1861,31 +1403,13 @@ bool str_starts_with_str(const String* self, const String* str){
  * @param chars char array that can be present at the start of string
  * @return true if string ends with substring, false otherwise
  */
-bool str_starts_with_chars(const String* self, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+int str_starts_with_chars(const String* self, const char* chars){
+    char fn_name[] = "int starts_with_chars(const String* self, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
+    __str_first_cell_test(fn_name, "self", self->_first);
     
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool starts_with_chars(const String* self, const char* chars)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    bool starts_with = false;
+    int starts_with = 0;
     size_t len = __str_strlen(chars);
 
     if(!self->is_empty(self) && len > 0 && self->len >= len){
@@ -1898,7 +1422,7 @@ bool str_starts_with_chars(const String* self, const char* chars){
         }
 
         if(i >= len)
-            starts_with = true;
+            starts_with = 1;
 
         ptr = NULL;
     }
@@ -1914,22 +1438,12 @@ bool str_starts_with_chars(const String* self, const char* chars){
  * @param str substring that can be present at the end of string
  * @return true if string ends with substring, false otherwise
  */
-bool str_ends_with_str(const String* self, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool ends_with_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+int str_ends_with_str(const String* self, const String* str){
+    char fn_name[] = "int ends_with_str(const String* self, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
     
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`bool ends_with_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
-
-    bool ends_with = false;
+    int ends_with = 0;
 
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
         _StringCell* ptr1 = self->_last;
@@ -1941,7 +1455,7 @@ bool str_ends_with_str(const String* self, const String* str){
         }
 
         if(ptr2 == str->_first)
-            ends_with = true;
+            ends_with = 1;
 
         ptr1 = NULL;
         ptr2 = NULL;
@@ -1958,22 +1472,12 @@ bool str_ends_with_str(const String* self, const String* str){
  * @param chars char array that can be present at the end of string
  * @return true if string ends with substring, false otherwise
  */
-bool str_ends_with_chars(const String* self, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool ends_with_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-    
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("`bool ends_with_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
+int str_ends_with_chars(const String* self, const char* chars){
+    char fn_name[] = "int ends_with_chars(const String* self, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
 
-    bool ends_with = false;
+    int ends_with = 0;
     size_t i = __str_strlen(chars);
 
     if(!self->is_empty(self) && i > 0 && self->len >= i){
@@ -1985,7 +1489,7 @@ bool str_ends_with_chars(const String* self, const char* chars){
         }
 
         if(i == 0)
-            ends_with = true;
+            ends_with = 1;
 
         ptr = NULL;
     }
@@ -2002,37 +1506,11 @@ bool str_ends_with_chars(const String* self, const char* chars){
  * @return index of substring if found, -1 otherwise
  */
 int str_find_str(const String* self, const String* str){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-    
-    if(str == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_str(const String* self, const String* str)`\n\n");
-        printf("-> argument `str` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_str(const String* self, const String* str)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
-    if(str->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_str(const String* self, const String* str)`\n\n");
-        printf("-> first cell of string `str` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int find_str(const String* self, const String* str)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "str", str);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_first_cell_test(fn_name, "str", str->_first);
 
     int index = -1;
     
@@ -2086,29 +1564,11 @@ int str_find_str(const String* self, const String* str){
  * @return index of substring if found, -1 otherwise
  */
 int str_find_chars(const String* self, const char* chars){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "int find_chars(const String* self, const char* chars)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_null_reference_test(fn_name, "chars", chars);
+    __str_first_cell_test(fn_name, "self", self->_first);
     
-    if(chars == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_chars(const String* self, const char* chars)`\n\n");
-        printf("-> argument `chars` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int find_chars(const String* self, const char* chars)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
     int index = -1;
     size_t len = __str_strlen(chars);
     
@@ -2159,7 +1619,7 @@ int str_find_chars(const String* self, const char* chars){
  * @param str substring searched
  * @return true if substring is inside String, false otherwise
  */
-bool str_contains_str(const String* self, const String* str){
+int str_contains_str(const String* self, const String* str){
     return str_find_str(self, str) != -1;
 }
 
@@ -2170,7 +1630,7 @@ bool str_contains_str(const String* self, const String* str){
  * @param chars char array searched
  * @return true if substring is inside String, false otherwise
  */
-bool str_contains_chars(const String* self, const char* chars){
+int str_contains_chars(const String* self, const char* chars){
     return str_find_chars(self, chars) != -1;
 }
 
@@ -2183,38 +1643,14 @@ bool str_contains_chars(const String* self, const char* chars){
  * @return byte array
  */
 int* str_to_bytes(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int* to_bytes(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`int* to_bytes(const String* self)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int* to_bytes(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int* to_bytes(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
     
     int* bytes = (int*)malloc(self->len * sizeof(int));
+    __str_memory_test(fn_name, bytes);
 
-    if(bytes == NULL){
-        printf("\nString error at:\n");
-        printf("\n`int* to_bytes(const String* self)`\n\n");
-        printf("-> failed to allocate memory\n");
-        exit(1);
-    }
-    
     _StringCell* ptr = self->_first->_next;
     size_t i = 0;
 
@@ -2233,43 +1669,20 @@ int* str_to_bytes(const String* self){
  * @return int value of string
  */
 int str_parse_int(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`int parse_int(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`int parse_int(const String* self)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`int parse_int(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "int parse_int(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
 
     int n = 0;
-    bool negative = false;
+    int negative = 0;
     size_t steps = 1;
     size_t index = self->len;
     _StringCell* ptr = self->_last;
 
     while(ptr != self->_first->_next){
-        if(!('0' <= ptr->_c && ptr->_c <= '9')){
-            printf("\nString error at:\n");
-            printf("`int parse_int(const String* self)`\n\n");
-            printf("-> char at index `%ld` (%c) is not a number\n", index - 1, ptr->_c);
-            exit(1);
-        }
-
+        __str_nan_test(fn_name, index, ptr->_c);
+        
         n += (ptr->_c - 48) * steps;
 
         steps *= 10;
@@ -2280,15 +1693,10 @@ int str_parse_int(const String* self){
     ptr = self->_first->_next;
     
     if(ptr->_c == '-'){
-        negative = true;
+        negative = 1;
     }else if(self->_first->_next->_c != '+'){
-        if(!('0' <= ptr->_c && ptr->_c <= '9')){
-            printf("\nString error at:\n");
-            printf("`int parse_int(const String* self)`\n\n");
-            printf("-> char at index `%ld` (%c) is not a number\n", index - 1, ptr->_c);
-            exit(1);
-        }
-
+        __str_nan_test(fn_name, index, ptr->_c);
+        
         n += (ptr->_c - 48) * steps;
     }
 
@@ -2314,50 +1722,28 @@ float str_parse_float(const String* self){
  * @return double value of string
  */
 double str_parse_double(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`double parse_double(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->is_empty(self)){
-        printf("\nString error at:\n");
-        printf("`double parse_double(const String* self)`\n\n");
-        printf("-> string `self` is empty\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`double parse_double(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "double parse_double(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    __str_empty_test(fn_name, "self", self->is_empty(self));
 
     _StringCell* ptr = self->_first->_next;
     double d = 0.0;
-    bool negative = false;
+    int negative = 0;
     double steps = 1;
     size_t index = 0;
 
     if(ptr->_c == '-'){
-        negative = true;
+        negative = 1;
         ptr = ptr->_next;
     }else if(ptr->_c == '+'){
         ptr = ptr->_next;
     }
 
     while(ptr != NULL && ptr->_c != '.'){
-        if(!('0' <= ptr->_c && ptr->_c <= '9') && ptr->_c != '.'){
-            printf("\nString error at:\n");
-            printf("`double parse_double(const String* self)`\n\n");
-            printf("-> char at index `%ld` (%c) is not a number\n", index, ptr->_c);
-            exit(1);
-        }
-
+        if(ptr->_c != '.') 
+            __str_nan_test(fn_name, index + 1, ptr->_c);
+        
         d *= steps;
         d += ptr->_c - 48;
         steps *= 10;
@@ -2373,12 +1759,7 @@ double str_parse_double(const String* self){
     }
 
     while(ptr != NULL){
-        if(!('0' <= ptr->_c && ptr->_c <= '9')){
-            printf("\nString error at:\n");
-            printf("`double parse_double(const String* self)`\n\n");
-            printf("-> char at index `%ld` (%c) is not a number\n", index, ptr->_c);
-            exit(1);
-        }
+        __str_nan_test(fn_name, index + 1, ptr->_c);
 
         d += (ptr->_c - 48) * steps;
         steps /= 10;
@@ -2396,25 +1777,13 @@ double str_parse_double(const String* self){
  * @param self String to be parsed
  * @return true if String is a valid true boolean, false otherwise
  */
-bool str_parse_bool(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`bool parse_bool(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`bool parse_bool(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+int str_parse_bool(const String* self){
+    char fn_name[] = "int parse_bool(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
-    bool b = false;
+    int b = 0;
 
     if(ptr != NULL){
         if(self->len == 4 && 
@@ -2426,8 +1795,8 @@ bool str_parse_bool(const String* self){
            ptr->_next->_next->_next != NULL && 
           (ptr->_next->_next->_next->_c == 'E' || ptr->_next->_next->_next->_c == 'e')){
 
-           b = true;
-        }else if(self->len == 1 && ptr->_c == '1') b = true;
+           b = 1;
+        }else if(self->len == 1 && ptr->_c == '1') b = 1;
     }
 
     ptr = NULL;
@@ -2441,22 +1810,10 @@ bool str_parse_bool(const String* self){
  * @param self String to be edited
  */
 void str_to_lowercase(String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void to_lowercase(String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void to_lowercase(String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
-
+    char fn_name[] = "void lowercase(String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
+    
     _StringCell* ptr = self->_first->_next;
 
     while(ptr != NULL){
@@ -2474,21 +1831,9 @@ void str_to_lowercase(String* self){
  * @param self String to be edited
  */
 void str_to_uppercase(String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void to_uppercase(String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`void to_uppercase(String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "void to_uppercase(String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
 
     _StringCell* ptr = self->_first->_next;
 
@@ -2507,13 +1852,9 @@ void str_to_uppercase(String* self){
  * @param self String to be titled
  */
 void str_title(String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void title(String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
+    char fn_name[] = "void title(String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    
     _StringCell* ptr = self->_first;
 
     while(ptr != NULL){
@@ -2538,12 +1879,8 @@ void str_title(String* self){
  * @param self String to be capitalized
  */
 void str_capitalize(String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`void capitalize(String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
+    char fn_name[] = "void capitalize(String* self)";
+    __str_null_reference_test(fn_name, "self", self);
 
     _StringCell* ptr = self->_first;
 
@@ -2564,23 +1901,11 @@ void str_capitalize(String* self){
  * @return clone of String
  */
 String str_clone(const String* self){
-    if(self == NULL){
-        printf("\nString error at:\n");
-        printf("`String clone(const String* self)`\n\n");
-        printf("-> argument `self` is null\n");
-        exit(1);
-    }
-
-    if(self->_first == NULL){
-        printf("\nString error at:\n");
-        printf("`String clone(const String* self)`\n\n");
-        printf("-> first cell of string `self` is null\n");
-        printf("-> could this be because a constructor was not used?\n");
-        printf("-> try using the method `String str_new()` to initialize a string\n");
-        exit(1);
-    }
+    char fn_name[] = "String clone(const String* self)";
+    __str_null_reference_test(fn_name, "self", self);
+    __str_first_cell_test(fn_name, "self", self->_first);
     
-    String str = str_new();
+    String str = string_new();
     _StringCell* ptr = self->_first->_next;
 
     while(ptr != NULL){
@@ -2719,6 +2044,141 @@ size_t __str_strlen(const char* chars){
     }
 
     return len;
+}
+
+/**
+ * @brief Tests if a memory allocation was sucessful. If not, exits
+ * the program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param test allocated pointer
+ */
+void __str_memory_test(const char* fn, const void* test){
+    if(test == NULL){
+        printf("\nString error at:\n");
+        printf("`%s`\n\n", fn);
+        printf("-> failed to allocate memory\n");
+        exit(1);
+    }
+}
+
+/**
+ * @brief Tests if a String* or char* is null. If it is, exits the program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param arg name of the argument
+ * @param test String to be tested
+ */
+void __str_null_reference_test(const char* fn, const char* arg, const void* test){
+    if(test == NULL){
+        printf("\nString error at:\n");
+        printf("`%s`\n\n", fn);
+        printf("-> argument `%s` is null\n", arg);
+        exit(1);
+    }
+}
+
+/**
+ * @brief Tests if the first cell of the linked list of a String is null
+ * The first cell is "empty" and should never be null. If if is, exits the
+ * program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param arg name of the argument
+ * @param test StringCell to be tested
+ */
+void __str_first_cell_test(const char* fn, const char* arg, const void* test){
+    if(test == NULL){
+        printf("\nString error at:\n");
+        printf("`%s`\n\n", fn);
+        printf("-> first cell of string `%s` is null\n", arg);
+        printf("-> could this be because a constructor was not used?\n");
+        printf("-> try using the method `String string_new()` to initialize a string\n");
+        exit(1);
+    }
+}
+
+/**
+ * @brief Tests if a String* is empty. If it is, exits the program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param arg name of the argument
+ * @param empty boolean indicating if String is empty
+ */
+void __str_empty_test(const char* fn, const char* arg, const int empty){
+    if(empty){
+        printf("\nString error at:\n");
+        printf("`%s`\n\n", fn);
+        printf("-> string `%s` is empty\n", arg);
+        exit(1);
+    }
+}
+
+/**
+ * @brief Tests if index is equal or greater then than length of String.
+ * If it is, exits the program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param index index to be tested
+ * @param len length to be tested
+ * @param test result of test
+ */
+void __str_index_out_of_bounds_test(const char* fn, const size_t index, const size_t len, const int test){
+    if(test){
+        printf("\nString error at: \n");
+        printf("`%s`\n\n", fn);
+        printf("-> index `%ld` invalid for length `%ld`\n", index, len);
+        exit(1);
+    }
+}
+
+/**
+ * @brief Tests if a index is equal or greater than the other. If it is,
+ * exits the program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param i_name first index name
+ * @param j_name second index name
+ * @param i first index
+ * @param j second index
+ */
+void __str_invalid_index_test(const char* fn, const char* i_name, const char* j_name, const size_t i, const size_t j){
+    if(i > j){
+        printf("\nString error at: \n");
+        printf("`%s`\n\n", fn);
+        printf("-> index `%s` (%ld) is higher than `%s` (%ld)\n", i_name, i, j_name, j);
+        exit(1);
+    }
+}
+
+/**
+ * @brief Tests if a char is not a number. If not, exits the program
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param index index of char
+ * @param c char to test
+ */
+void __str_nan_test(const char* fn, const size_t index, const char c){
+    if(!('0' <= c && c <= '9')){
+        printf("\nString error at:\n");
+        printf("`%s`\n\n", fn);
+        printf("-> char at index `%ld` (%c) is not a number\n", index - 1, c);
+        exit(1);
+    }
 }
 
 #endif
