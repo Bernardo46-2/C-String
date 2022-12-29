@@ -28,11 +28,11 @@ int main(){
     str3.title(&str3);
 
     chars = str2.to_chars(&str2);
-    printf("'%s'\n", str2.to_chars(&str2));
+    printf("'%s'\n", chars);
     free(chars);
 
     chars = str3.to_chars(&str3);
-    printf("'%s'\n", str3.to_chars(&str3));
+    printf("'%s'\n", chars);
     free(chars);
 
     str2.free(&str2);
@@ -42,11 +42,11 @@ int main(){
     str3 = str2.drain(&str2, 8, 9);
 
     chars = str2.to_chars(&str2);
-    printf("'%s'\n", str2.to_chars(&str2));
+    printf("'%s'\n", chars);
     free(chars);
     
     chars = str3.to_chars(&str3);
-    printf("'%s'\n", str3.to_chars(&str3));
+    printf("'%s'\n", chars);
     free(chars);
 
     str1.free(&str1);
@@ -54,7 +54,7 @@ int main(){
     str1.reap(&str1, 0, 8);
 
     chars = str1.to_chars(&str1);
-    printf("'%s'\n", str1.to_chars(&str1));
+    printf("'%s'\n", chars);
     printf("%ld\n", str1.len);
     free(chars);
 
@@ -63,15 +63,15 @@ int main(){
     str1.trim(&str1);
 
     chars = str1.to_chars(&str1);
-    printf("'%s'\n", str1.to_chars(&str1));
+    printf("'%s'\n", chars);
     printf("%ld\n", str1.len);
     free(chars);
 
     str2.free(&str2);
-    str2 = str1.substring(NULL, 1, 3);
+    str2 = str1.substring(&str1, 1, 3);
 
     chars = str2.to_chars(&str2);
-    printf("'%s'\n", str2.to_chars(&str2));
+    printf("'%s'\n", chars);
     printf("%ld\n", str2.len);
     free(chars);
 
