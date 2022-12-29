@@ -1,7 +1,7 @@
 #include "str.h"
 
 int main(){
-    String str1 = str_from("-a-bc  d - e- ");
+    String str1 = string_from("-a-bc  d - e- ");
     StringArray strs = str1.split(&str1, ' ');
     char* chars = NULL;
 
@@ -13,8 +13,8 @@ int main(){
         free(chars);
     }
 
-    String str2 = str_from("test");
-    String str3 = str_from(" yo");
+    String str2 = string_from("test");
+    String str3 = string_from(" yo");
     str2.push_str(&str2, &str3);
 
     chars = str2.to_chars(&str2);
@@ -38,7 +38,7 @@ int main(){
     str2.free(&str2);
     str3.free(&str3);
 
-    str2 = str_from("abcdefghi");
+    str2 = string_from("abcdefghi");
     str3 = str2.drain(&str2, 8, 9);
 
     chars = str2.to_chars(&str2);
@@ -50,7 +50,7 @@ int main(){
     free(chars);
 
     str1.free(&str1);
-    str1 = str_from("abcdefghij");
+    str1 = string_from("abcdefghij");
     str1.reap(&str1, 0, 8);
 
     chars = str1.to_chars(&str1);
@@ -59,7 +59,7 @@ int main(){
     free(chars);
 
     str1.free(&str1);
-    str1 = str_from("  asd   \r\n");
+    str1 = string_from("  asd   \r\n");
     str1.trim(&str1);
 
     chars = str1.to_chars(&str1);
@@ -68,7 +68,7 @@ int main(){
     free(chars);
 
     str2.free(&str2);
-    str2 = str1.substring(&str1, 1, 3);
+    str2 = str1.substring(NULL, 1, 3);
 
     chars = str2.to_chars(&str2);
     printf("'%s'\n", str2.to_chars(&str2));
