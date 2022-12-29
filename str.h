@@ -7,24 +7,24 @@
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 1.0.3
+ * @version 1.0.4
  */
 
 
 // ========================================== Structs ========================================== //
 
-typedef struct _StringCell_t _StringCell;
-typedef struct _String_t String;
-typedef struct _StringArray_t StringArray;
+typedef struct _StringCell_s _StringCell;
+typedef struct _String_s String;
+typedef struct _StringArray_s StringArray;
 
-struct _StringCell_t{
+struct _StringCell_s{
     char _c;
     _StringCell* _next;
     _StringCell* _prev;
     void (*_free)(_StringCell*);
 };
 
-struct _String_t{
+struct _String_s{
     size_t len;
     _StringCell* _first;
     _StringCell* _last;
@@ -80,7 +80,7 @@ struct _String_t{
     void (*free)(String* self);
 };
 
-struct _StringArray_t{
+struct _StringArray_s{
     String* strs;
     size_t len;
     void (*free)(StringArray* self);
@@ -606,7 +606,7 @@ String str_substring(const String* self, size_t start, size_t end){
 }
 
 /**
- * @brief Removes spaces, `\\n` and `\\r` present at the start and end of the string
+ * @brief Removes spaces, `\\n`, `\\r` and `\\t` present at the start and end of the string
  * 
  * @param self base String
  */
@@ -618,7 +618,7 @@ void str_trim(String* self){
     if(!self->is_empty(self)){
         _StringCell* ptr = self->_last;
 
-        while(ptr != self->_first && (ptr->_c == ' ' || ptr->_c == '\n' || ptr->_c == '\r')){
+        while(ptr != self->_first && (ptr->_c == ' ' || ptr->_c == '\n' || ptr->_c == '\r' || ptr->_c == '\t')){
             ptr = ptr->_prev;
             __strcell_free(ptr->_next);
             self->len--;
@@ -628,7 +628,7 @@ void str_trim(String* self){
         self->_last = ptr;
         ptr = self->_first->_next;
 
-        while(ptr != NULL && (ptr->_c == ' ' || ptr->_c == '\n' || ptr->_c == '\r')){
+        while(ptr != NULL && (ptr->_c == ' ' || ptr->_c == '\n' || ptr->_c == '\r' || ptr->_c == '\t')){
             ptr = ptr->_next;
             __strcell_free(ptr->_prev);
             self->len--;
