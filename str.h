@@ -7,7 +7,7 @@
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 1.0.4
+ * @version 1.0.5
  */
 
 
@@ -278,11 +278,7 @@ String string_new(){
  */
 String string_from(const char* chars){
     String self = string_new();
-
-    size_t len = __str_strlen(chars);
-
     self.push_chars(&self, chars);
-
     return self;
 }
 
@@ -359,12 +355,10 @@ void str_push(String* self, const char c){
     char fn_name[] = "void push(String* self, const char c)";
     __str_null_reference_test(fn_name, "self", self);
     
-    if(self != NULL){
-        self->_last->_next = __strcell_new(c);
-        self->_last->_next->_prev = self->_last;
-        self->_last = self->_last->_next;
-        self->len++;
-    }
+    self->_last->_next = __strcell_new(c);
+    self->_last->_next->_prev = self->_last;
+    self->_last = self->_last->_next;
+    self->len++;
 }
 
 /**
