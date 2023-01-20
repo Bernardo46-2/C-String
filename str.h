@@ -1841,7 +1841,7 @@ void str_to_uppercase(String* self){
 }
 
 /**
- * @brief Capitalizes every word on the string (i.e. `ab c def` -> `Ab C Def`)
+ * @brief Capitalizes every word on the string (e.g. `ab c def` -> `Ab C Def`)
  * 
  * @param self String to be titled
  */
@@ -1868,7 +1868,7 @@ void str_title(String* self){
 }
 
 /**
- * @brief Capitalizes the string (i.e. `test` -> `Test`)
+ * @brief Capitalizes the string (e.g. `test` -> `Test`)
  * 
  * @param self String to be capitalized
  */
