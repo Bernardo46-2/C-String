@@ -3,11 +3,12 @@
 
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 1.0.5
+ * @version 2.0.0
  */
 
 
@@ -18,21 +19,22 @@ typedef struct _String_s String;
 typedef struct _StringArray_s StringArray;
 
 struct _StringCell_s{
-    char _c;
-    _StringCell* _next;
-    _StringCell* _prev;
-    void (*_free)(_StringCell*);
+    char __c;
+    _StringCell* __next;
+    _StringCell* __prev;
 };
 
 struct _String_s{
     size_t len;
-    _StringCell* _first;
-    _StringCell* _last;
+    _StringCell* __first;
+    _StringCell* __last;
     int (*is_empty)(const String* self);
+    char (*first)(const String* self);
+    char (*last)(const String* self);
     void (*push)(String* self, const char c);
     void (*push_chars)(String* self, const char* chars);
     void (*push_str)(String* self, const String* str);
-    char (*nth)(const String* self, size_t index);
+    char (*get)(const String* self, size_t index);
     void (*set)(String* self, const size_t index, const char c);
     void (*print)(const String* self);
     void (*println)(const String* self);
@@ -41,6 +43,8 @@ struct _String_s{
     int (*contains)(const String* self, const char c);
     String (*substring)(const String* self, size_t start, size_t end);
     void (*trim)(String* self);
+    void (*trim_left)(String* self);
+    void (*trim_right)(String* self);
     int (*compare_to_str)(const String* self, const String* str);
     int (*compare_to_chars)(const String* self, const char* chars);
     int (*equals_str)(const String* self, const String* str);
@@ -76,6 +80,7 @@ struct _String_s{
     void (*to_uppercase)(String* self);
     void (*title)(String* self);
     void (*capitalize)(String* self);
+    void (*clear)(String* self);
     String (*clone)(const String* self);
     void (*free)(String* self);
 };
@@ -89,18 +94,27 @@ struct _StringArray_s{
 
 // ========================================== Prototypes ========================================== //
 
-_StringCell* __strcell_new(const char);
-void __strcell_free(_StringCell*);
+static _StringCell* strcell_new(const char);
+static void strcell_free(_StringCell*);
 
 String string_new();
 String string_from(const char*);
 String string_read(const char*, const size_t);
 String string_read_line(const char*, const size_t);
+String string_from_int(int);
+String string_from_size_t(size_t);
+String string_from_float(const float);
+String string_from_double(const double);
+String string_from_bool(const unsigned int);
+String string_format(const char*, ...);
+
 int str_is_empty(const String*);
+char str_first(const String*);
+char str_last(const String*);
 void str_push(String*, const char);
 void str_push_chars(String*, const char*);
 void str_push_str(String*, const String*);
-char str_nth(const String*, const size_t);
+char str_get(const String*, const size_t);
 void str_set(String*, const size_t, const char);
 void str_print(const String*);
 void str_println(const String*);
@@ -109,6 +123,8 @@ int str_find(const String*, const char);
 int str_contains(const String*, const char);
 String str_substring(const String*, size_t, size_t);
 void str_trim(String*);
+void str_trim_left(String*);
+void str_trim_right(String*);
 int str_compare_to_str(const String*, const String*);
 int str_compare_to_chars(const String*, const char*);
 int str_equals_str(const String*, const String*);
@@ -144,20 +160,22 @@ void str_to_lowercase(String*);
 void str_to_uppercase(String*);
 void str_title(String*);
 void str_capitalize(String*);
+void str_clear(String*);
 String str_clone(const String*);
 void str_free(String*);
 
 StringArray strarray_new();
 void strarray_free(StringArray*);
 
-size_t __str_strlen(const char*);
-void __str_memory_test(const char*, const void*);
-void __str_first_cell_test(const char*, const char*, const void*);
-void __str_null_reference_test(const char*, const char*, const void*);
-void __str_empty_test(const char*, const char*, const int);
-void __str_index_out_of_bounds_test(const char*, const size_t, const size_t, const int);
-void __str_invalid_index_test(const char*, const char*, const char*, const size_t, const size_t);
-void __str_nan_test(const char*, const size_t, const char);
+static size_t str_strlen(const char*);
+static void str_memory_test(const char*, const void*);
+static void str_first_cell_test(const char*, const char*, const void*);
+static void str_null_reference_test(const char*, const char*, const void*);
+static void str_empty_test(const char*, const char*, const int);
+static void str_index_out_of_bounds_test(const char*, const size_t, const size_t, const int);
+static void str_invalid_index_test(const char*, const char*, const char*, const size_t, const size_t);
+static void str_nan_test(const char*, const size_t, const char);
+static void str_format_error(const char*, const char*, const char);
 
 
 // ========================================== StringCell ========================================== //
@@ -170,15 +188,13 @@ void __str_nan_test(const char*, const size_t, const char);
  * @param c char that the cell will hold
  * @return allocated cell
  */
-_StringCell* __strcell_new(const char c){
+static _StringCell* strcell_new(const char c){
     _StringCell* self = (_StringCell*)malloc(sizeof(_StringCell));
-    __str_memory_test("_StringCell* __strcell_new(const char c)", self);
+    str_memory_test("_StringCell* strcell_new(const char c)", self);
     
-    self->_c = c;
-    self->_next = NULL;
-    self->_prev = NULL;
-
-    self->_free = __strcell_free;
+    self->__c = c;
+    self->__next = NULL;
+    self->__prev = NULL;
 
     return self;
 }
@@ -190,12 +206,10 @@ _StringCell* __strcell_new(const char c){
  * 
  * @param self StringCell to be freed
  */
-void __strcell_free(_StringCell* self){
+static void strcell_free(_StringCell* self){
     if(self != NULL){
-        self->_next = NULL;
-        self->_prev = NULL;
-        self->_free = NULL;
-
+        self->__next = NULL;
+        self->__prev = NULL;
         free(self);
     }
 }
@@ -211,16 +225,18 @@ void __strcell_free(_StringCell* self){
 String string_new(){
     String self;
 
-    self._first = __strcell_new(' ');
-    self._last = self._first;
-    self._last->_next = NULL;
+    self.__first = strcell_new(' ');
+    self.__last = self.__first;
+    self.__last->__next = NULL;
     self.len = 0;
 
     self.is_empty = str_is_empty;
+    self.first = str_first;
+    self.last = str_last;
     self.push = str_push;
     self.push_chars = str_push_chars;
     self.push_str = str_push_str;
-    self.nth = str_nth;
+    self.get = str_get;
     self.set = str_set;
     self.print = str_print;
     self.println = str_println;
@@ -229,6 +245,8 @@ String string_new(){
     self.contains = str_contains;
     self.substring = str_substring;
     self.trim = str_trim;
+    self.trim_left = str_trim_left;
+    self.trim_right = str_trim_right;
     self.compare_to_str = str_compare_to_str;
     self.compare_to_chars = str_compare_to_chars;
     self.equals_str = str_equals_str;
@@ -264,6 +282,7 @@ String string_new(){
     self.to_uppercase = str_to_uppercase;
     self.title = str_title;
     self.capitalize = str_capitalize;
+    self.clear = str_clear;
     self.clone = str_clone;
     self.free = str_free;
 
@@ -286,13 +305,13 @@ String string_from(const char* chars){
  * @brief Reads a new String from stdin
  * 
  * @param message what to print before reading String
- * @param max_len max length of String (it can be muted later by other methods)
+ * @param len max length of the read String (it can be muted later by other methods)
  * @return new String
  */
-String string_read(const char* message, const size_t max_len){
-    char* str = (char*)malloc((max_len + 1) * sizeof(char));
-    char fn_name[] = "String string_read(const char* message, const size_t max_len)";
-    __str_memory_test(fn_name, str);
+String string_read(const char* message, const size_t len){
+    char* str = (char*)malloc((len + 1) * sizeof(char));
+    char fn_name[] = "String string_read(const char* message, const size_t len)";
+    str_memory_test(fn_name, str);
 
     String self;
 
@@ -310,25 +329,206 @@ String string_read(const char* message, const size_t max_len){
  * @brief Reads a new String from stdin, including spaces
  * 
  * @param message what to print before reading String
- * @param max_len max length of String (it can be muted later by other methods)
+ * @param len max length of the read String (it can be muted later by other methods)
  * @return new String
  */
-String string_read_line(const char* message, const size_t max_len){
-    char* str = (char*)malloc((max_len + 1) * sizeof(char));
-    char fn_name[] = "String string_read_line(const char* message, const size_t max_len)";
-    __str_memory_test(fn_name, str);
+String string_read_line(const char* message, const size_t len){
+    char* str = (char*)malloc((len + 1) * sizeof(char));
+    char fn_name[] = "String string_read_line(const char* message, const size_t len)";
+    str_memory_test(fn_name, str);
 
     String self;
 
     printf("%s", message);
-    fgets(str, max_len + 1, stdin);
+    fgets(str, len + 1, stdin);
 
     self = string_from(str);
 
-    if(self._last->_c == '\n')
+    if(self.__last->__c == '\n')
         self.remove(&self, self.len - 1);
 
     if(str) free(str);
+    return self;
+}
+
+/**
+ * @brief Creates a string from a given integer
+ * 
+ * @param n int to be used
+ * @return String containing the given int
+ */
+String string_from_int(int n){
+    String self = string_new();
+    short negative = n < 0;
+
+    if(negative){
+        n = -n;
+        self.push(&self, '-');
+    }
+    
+    do{
+        self.insert(&self, negative, n % 10 + 48);
+        n /= 10;
+    }while(n);
+
+    return self;
+}
+
+/**
+ * @brief Creates a string from a given size_t
+ * 
+ * @param n size_t to be used
+ * @return String containing the given size_t
+*/
+String string_from_size_t(size_t n){
+    String self = string_new();
+
+    do{
+        self.insert(&self, 0, n % 10 + 48);
+        n /= 10;
+    }while(n);
+
+    return self;
+}
+
+/**
+ * @brief Creates a string from a given float
+ * 
+ * @param f float to be used
+ * @return String containing the given float
+ */
+String string_from_float(const float f){
+    return string_from_double((double)f);
+}
+
+/**
+ * @brief Creates a string from a given double (with precision 3)
+ * 
+ * @param d double to be used
+ * @return String containing the given double
+ */
+String string_from_double(const double d){
+    String self = string_new();
+    short negative = d < 0;
+    int precision = 3;
+    int n = (int)d;
+    double f = d - n;
+
+    if(negative){
+        n = -n;
+        self.push(&self, '-');
+    }
+
+    do{
+        self.insert(&self, negative, n % 10 + 48);
+        n /= 10;
+    }while(n);
+
+    self.push(&self, '.');
+
+    for(int i = 0; i < precision; i++){
+        f = (f - n) * 10;
+        n = (int)f;
+        self.push(&self, n + 48);
+    }
+
+    return self;
+}
+
+/**
+ * @brief Creates a new string from a given boolean
+ * 
+ * @param b boolean to be used
+ * @return String containing either "false" or "true"
+ */
+String string_from_bool(const unsigned int b){
+    if(b == 0){
+        return string_from("false");
+    }else{
+        return string_from("true");
+    }
+}
+
+/**
+ * @brief Creates a new String from a given format
+ * 
+ * @note Currently has support for: 
+ * @note -- %% - %
+ * @note -- %d - int
+ * @note -- %ld - size_t
+ * @note -- %f - float | double
+ * @note -- %c - char
+ * @note -- %s - char*
+ * @note -- %S - String*
+ * 
+ * @param chars char array containing format
+ * @param ... arguments to be inserted in string
+ * @return new formatted String
+ */
+String string_format(const char* fmt, ...){
+    char fn_name[] = "String string_format(const char* fmt, ...)";
+    str_null_reference_test(fn_name, "fmt", fmt);
+    
+    String self = string_new();
+    String tmp;
+    va_list args;
+    va_start(args, fmt);
+    const char* ptr = fmt;
+
+    while(*ptr){
+        if(*ptr != '%'){
+            self.push(&self, *ptr);
+        }else{
+            switch(*++ptr){
+                case '%':
+                    self.push(&self, '%');
+                    break;
+                
+                case 'd':
+                    tmp = string_from_int(va_arg(args, int));
+                    self.push_str(&self, &tmp);
+                    tmp.free(&tmp);
+                    break;
+
+                case 'f':
+                    tmp = string_from_double(va_arg(args, double));
+                    self.push_str(&self, &tmp);
+                    tmp.free(&tmp);
+                    break;
+                
+                case 'c':
+                    self.push(&self, va_arg(args, int));
+                    break;
+                
+                case 's':
+                    self.push_chars(&self, va_arg(args, char*));
+                    break;
+
+                case 'S':
+                    self.push_str(&self, va_arg(args, String*));
+                    break;
+
+                case 'l':
+                    if(*++ptr == 'd'){
+                        tmp = string_from_size_t(va_arg(args, size_t));
+                        self.push_str(&self, &tmp);
+                        tmp.free(&tmp);
+                    }else{
+                        str_format_error(fn_name, "l", *ptr);
+                    }
+                    break;
+
+                default:
+                    str_format_error(fn_name, "", *ptr);
+            }
+        }
+        
+        ptr++;
+    }
+
+    va_end(args);
+    ptr = NULL;
+
     return self;
 }
 
@@ -340,9 +540,36 @@ String string_read_line(const char* message, const size_t max_len){
  */
 int str_is_empty(const String* self){
     char fn_name[] = "int is_empty(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "self", self);
     
-    return self->_first == self->_last;
+    return self->__first == self->__last;
+}
+
+/**
+ * @brief Returns the first char of a string (if not empty)
+ * 
+ * @param self String to get char
+ * @return first char of the string
+ */
+char str_first(const String* self){
+    char fn_name[] = "char first(const String *self)";
+    str_null_reference_test(fn_name, "self", self);
+    str_empty_test(fn_name, "self", self->is_empty(self));
+    str_first_cell_test(fn_name, "self", self->__first);
+    return self->__first->__next->__c;
+}
+
+/**
+ * @brief Returns the last char of a string (if not empty)
+ * 
+ * @param self String to get char
+ * @return last char of the string
+ */
+char str_last(const String* self){
+    char fn_name[] = "char last(const String *self)";
+    str_null_reference_test(fn_name, "self", self);
+    str_empty_test(fn_name, "self", self->is_empty(self));
+    return self->__last->__c;
 }
 
 /**
@@ -353,11 +580,11 @@ int str_is_empty(const String* self){
  */
 void str_push(String* self, const char c){
     char fn_name[] = "void push(String* self, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "self", self);
     
-    self->_last->_next = __strcell_new(c);
-    self->_last->_next->_prev = self->_last;
-    self->_last = self->_last->_next;
+    self->__last->__next = strcell_new(c);
+    self->__last->__next->__prev = self->__last;
+    self->__last = self->__last->__next;
     self->len++;
 }
 
@@ -369,20 +596,20 @@ void str_push(String* self, const char c){
  */
 void str_push_chars(String* self, const char* chars){
     char fn_name[] = "void push_chars(String* self, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
     
-    size_t len = __str_strlen(chars);
-    _StringCell* ptr = self->_last;
+    size_t len = str_strlen(chars);
+    _StringCell* ptr = self->__last;
 
     for(size_t i = 0; i < len; i++){
-        ptr->_next = __strcell_new(chars[i]);
-        ptr->_next->_prev = ptr;
-        ptr = ptr->_next;
+        ptr->__next = strcell_new(chars[i]);
+        ptr->__next->__prev = ptr;
+        ptr = ptr->__next;
     }
 
     self->len += len;
-    self->_last = ptr;
+    self->__last = ptr;
     ptr = NULL;
 }
 
@@ -394,22 +621,22 @@ void str_push_chars(String* self, const char* chars){
  */
 void str_push_str(String* self, const String* str){
     char fn_name[] = "void push_str(String* self, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
-    __str_first_cell_test(fn_name, "str", str->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
+    str_first_cell_test(fn_name, "str", str->__first);
 
-    _StringCell* ptr1 = self->_last;
-    _StringCell* ptr2 = str->_first->_next;
+    _StringCell* ptr1 = self->__last;
+    _StringCell* ptr2 = str->__first->__next;
 
     while(ptr2 != NULL){
-        ptr1->_next = __strcell_new(ptr2->_c);
-        ptr1->_next->_prev = ptr1;
-        ptr1 = ptr1->_next;
-        ptr2 = ptr2->_next;
+        ptr1->__next = strcell_new(ptr2->__c);
+        ptr1->__next->__prev = ptr1;
+        ptr1 = ptr1->__next;
+        ptr2 = ptr2->__next;
     }
 
     self->len += str->len;
-    self->_last = ptr1;
+    self->__last = ptr1;
     ptr1 = NULL;
     ptr2 = NULL;
 }
@@ -421,20 +648,20 @@ void str_push_str(String* self, const String* str){
  * @param index where to get char
  * @return char from given index
  */
-char str_nth(const String* self, const size_t index){
-    char fn_name[] = "char nth(const String* self, const size_t index)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
-    __str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
-    __str_first_cell_test(fn_name, "self", self->_first);
+char str_get(const String* self, const size_t index){
+    char fn_name[] = "char get(const String* self, const size_t index)";
+    str_null_reference_test(fn_name, "self", self);
+    str_empty_test(fn_name, "self", self->is_empty(self));
+    str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     char c = ' ';
     
     for(size_t i = 0; i < index; i++)
-        ptr = ptr->_next;
+        ptr = ptr->__next;
 
-    c = ptr->_c;
+    c = ptr->__c;
     ptr = NULL;
 
     return c;
@@ -449,16 +676,16 @@ char str_nth(const String* self, const size_t index){
  */
 void str_set(String* self, const size_t index, const char c){
     char fn_name[] = "void set(String* self, const size_t index, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
-    __str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_empty_test(fn_name, "self", self->is_empty(self));
+    str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
-    for(size_t i = 0; i < index; i++) ptr = ptr->_next;
+    for(size_t i = 0; i < index; i++) ptr = ptr->__next;
 
-    ptr->_c = c;
+    ptr->__c = c;
     ptr = NULL;
 }
 
@@ -472,13 +699,13 @@ void str_print(const String* self){
         printf("null");
     }else{
         char fn_name[] = "void print(const String* self)";
-        __str_first_cell_test(fn_name, "self", self->_first);
+        str_first_cell_test(fn_name, "self", self->__first);
 
-        _StringCell* ptr = self->_first->_next;
+        _StringCell* ptr = self->__first->__next;
 
         while(ptr != NULL){
-            printf("%c", ptr->_c);
-            ptr = ptr->_next;
+            printf("%c", ptr->__c);
+            ptr = ptr->__next;
         }
 
         ptr = NULL;
@@ -486,7 +713,7 @@ void str_print(const String* self){
 }
 
 /**
- * @brief Prints the string with a line break `\n` at the end
+ * @brief Prints the string with a line break `\\n` at the end
  * 
  * @param self String to be printed
  */
@@ -505,18 +732,18 @@ void str_println(const String* self){
  */
 char* str_to_chars(const String* self){
     char fn_name[] = "char* to_chars(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
     char* str = (char*)malloc((self->len + 1) * sizeof(char));
-    __str_memory_test(fn_name, str);
+    str_memory_test(fn_name, str);
     
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     size_t i = 0;
     
     while(ptr != NULL){
-        str[i++] = ptr->_c;
-        ptr = ptr->_next;
+        str[i++] = ptr->__c;
+        ptr = ptr->__next;
     }
 
     str[i] = '\0';
@@ -534,14 +761,14 @@ char* str_to_chars(const String* self){
  */
 int str_find(const String* self, const char c){
     char fn_name[] = "int find(const String* self, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
     size_t index = 0;
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
-    while(ptr != NULL && ptr->_c != c){
-        ptr = ptr->_next;
+    while(ptr != NULL && ptr->__c != c){
+        ptr = ptr->__next;
         index++;
     }
 
@@ -571,30 +798,37 @@ int str_contains(const String* self, const char c){
  * removing substring from string 
  * 
  * @param self String to take substring
- * @param start start index of substring
- * @param end end index of substring
+ * @param start start index of substring (inclusive)
+ * @param end end index of substring (exclusive)
  * @return substring between start and end indexes
  */
 String str_substring(const String* self, size_t start, size_t end){
     char fn_name[] = "String substring(const String* self, size_t start, size_t end)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
-    __str_invalid_index_test(fn_name, "start", "end", start, end);
-    __str_index_out_of_bounds_test(fn_name, end, self->len, start > self->len);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_empty_test(fn_name, "self", self->is_empty(self));
+    str_invalid_index_test(fn_name, "start", "end", start, end);
+    str_index_out_of_bounds_test(fn_name, end, self->len, start > self->len);
 
     String str = string_new();
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr1 = self->__first->__next;
+    _StringCell* ptr2 = str.__first;
 
     for(size_t i = 0; i < start; i++)
-        ptr = ptr->_next;
+        ptr1 = ptr1->__next;
 
     for(size_t i = start; i < end; i++){
-        str.push(&str, ptr->_c);
-        ptr = ptr->_next;
+        ptr2->__next = strcell_new(ptr1->__c);
+        ptr2->__next->__prev = ptr2;
+
+        ptr1 = ptr1->__next;
+        ptr2 = ptr2->__next;
     }
 
-    ptr = NULL;
+    str.len = end - start;
+    str.__last = ptr2;
+    ptr1 = NULL;
+    ptr2 = NULL;
 
     return str;
 }
@@ -602,36 +836,86 @@ String str_substring(const String* self, size_t start, size_t end){
 /**
  * @brief Removes spaces, `\\n`, `\\r` and `\\t` present at the start and end of the string
  * 
- * @param self base String
+ * @param self String to be edited
  */
 void str_trim(String* self){
     char fn_name[] = "void trim(String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
     
     if(!self->is_empty(self)){
-        _StringCell* ptr = self->_last;
+        _StringCell* ptr = self->__last;
 
-        while(ptr != self->_first && (ptr->_c == ' ' || ptr->_c == '\n' || ptr->_c == '\r' || ptr->_c == '\t')){
-            ptr = ptr->_prev;
-            __strcell_free(ptr->_next);
+        while(ptr != self->__first && (ptr->__c == ' ' || ptr->__c == '\n' || ptr->__c == '\r' || ptr->__c == '\t')){
+            ptr = ptr->__prev;
+            strcell_free(ptr->__next);
             self->len--;
         }
 
-        ptr->_next = NULL;
-        self->_last = ptr;
-        ptr = self->_first->_next;
+        ptr->__next = NULL;
+        self->__last = ptr;
+        ptr = self->__first->__next;
 
-        while(ptr != NULL && (ptr->_c == ' ' || ptr->_c == '\n' || ptr->_c == '\r' || ptr->_c == '\t')){
-            ptr = ptr->_next;
-            __strcell_free(ptr->_prev);
+        while(ptr != NULL && (ptr->__c == ' ' || ptr->__c == '\n' || ptr->__c == '\r' || ptr->__c == '\t')){
+            ptr = ptr->__next;
+            strcell_free(ptr->__prev);
             self->len--;
         }
 
-        if(ptr != NULL) ptr->_prev = self->_first;
-        self->_first->_next = ptr;
+        if(ptr != NULL) ptr->__prev = self->__first;
+        self->__first->__next = ptr;
 
         ptr = NULL;
+    }
+}
+
+/**
+ * @brief Removes spaces, `\\n`, `\\r` and `\\t` present at the start of the string
+ * 
+ * @param self String to be edited
+ */
+void str_trim_left(String* self){
+    char fn_name[] = "void trim_left(String* self)";
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    
+    if(!self->is_empty(self)){
+        _StringCell* ptr = self->__first->__next;
+
+        while(ptr != NULL && (ptr->__c == ' ' || ptr->__c == '\n' || ptr->__c == '\r' || ptr->__c == '\t')){
+            ptr = ptr->__next;
+            strcell_free(ptr->__prev);
+            self->len--;
+        }
+
+        if(ptr != NULL) ptr->__prev = self->__first;
+        self->__first->__next = ptr;
+
+        ptr = NULL;
+    }
+}
+
+/**
+ * @brief Removes spaces, `\\n`, `\\r` and `\\t` present at the end of the string
+ * 
+ * @param self String to be edited
+ */
+void str_trim_right(String* self){
+    char fn_name[] = "void trim_right(String* self)";
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    
+    if(!self->is_empty(self)){
+        _StringCell* ptr = self->__last;
+
+        while(ptr != self->__first && (ptr->__c == ' ' || ptr->__c == '\n' || ptr->__c == '\r' || ptr->__c == '\t')){
+            ptr = ptr->__prev;
+            strcell_free(ptr->__next);
+            self->len--;
+        }
+
+        ptr->__next = NULL;
+        self->__last = ptr;
     }
 }
 
@@ -644,23 +928,23 @@ void str_trim(String* self){
  */
 int str_compare_to_str(const String* self, const String* str){
     char fn_name[] = "int compare_to_str(const String* self, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_first_cell_test(fn_name, "str", str->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_first_cell_test(fn_name, "str", str->__first);
 
-    _StringCell* ptr1 = self->_first->_next;
-    _StringCell* ptr2 = str->_first->_next;
+    _StringCell* ptr1 = self->__first->__next;
+    _StringCell* ptr2 = str->__first->__next;
     int diff = 0;
     
     while(ptr1 != NULL && ptr2 != NULL && diff == 0){
-        diff = ptr1->_c - ptr2->_c;
-        ptr1 = ptr1->_next;
-        ptr2 = ptr2->_next;
+        diff = ptr1->__c - ptr2->__c;
+        ptr1 = ptr1->__next;
+        ptr2 = ptr2->__next;
     }
 
-    if(ptr1 != NULL && ptr2 == NULL) diff = ptr1->_c;
-    else if(ptr1 == NULL && ptr2 != NULL) diff = ptr2->_c;
+    if(ptr1 != NULL && ptr2 == NULL) diff = ptr1->__c;
+    else if(ptr1 == NULL && ptr2 != NULL) diff = ptr2->__c;
 
     return diff;
 }
@@ -674,22 +958,22 @@ int str_compare_to_str(const String* self, const String* str){
  */
 int str_compare_to_chars(const String* self, const char* chars){
     char fn_name[] = "int compare_to_chars(const String* self, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     size_t i = 0;
-    size_t len = __str_strlen(chars);
+    size_t len = str_strlen(chars);
     int diff = 0;
     
     while(ptr != NULL && i < len && diff == 0){
-        diff = ptr->_c - chars[i];
-        ptr = ptr->_next;
+        diff = ptr->__c - chars[i];
+        ptr = ptr->__next;
         i++;
     }
 
-    if(ptr != NULL && i == len) diff = ptr->_c;
+    if(ptr != NULL && i == len) diff = ptr->__c;
     else if(ptr == NULL && i < len) diff = -chars[i];
 
     return diff;
@@ -728,32 +1012,32 @@ int str_equals_chars(const String* self, const char* chars){
  */
 StringArray str_split(const String* self, const char c){
     char fn_name[] = "StringArray split(const String* self, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_empty_test(fn_name, "self", self->is_empty(self));
     
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     _StringCell* start = NULL;
     size_t index = 0;
     StringArray sa = strarray_new();
 
-    while(ptr != NULL && ptr->_c == c)
-        ptr = ptr->_next;
+    while(ptr != NULL && ptr->__c == c)
+        ptr = ptr->__next;
 
     start = ptr;
 
     while(ptr != NULL){
-        if(ptr->_c == c){
+        if(ptr->__c == c){
             do
-                ptr = ptr->_next;
-            while(ptr != NULL && ptr->_c == c);
+                ptr = ptr->__next;
+            while(ptr != NULL && ptr->__c == c);
 
             if(ptr != NULL){
                 sa.len++;
-                ptr = ptr->_next;
+                ptr = ptr->__next;
             }
         }else{
-            ptr = ptr->_next;
+            ptr = ptr->__next;
         }
     }
 
@@ -761,25 +1045,25 @@ StringArray str_split(const String* self, const char c){
 
     if(sa.len > 0){
         sa.strs = (String*)malloc(sa.len * sizeof(String));
-        __str_memory_test(fn_name, sa.strs);
+        str_memory_test(fn_name, sa.strs);
 
         sa.strs[0] = string_new();
         ptr = start;
 
         while(ptr != NULL){
-            if(ptr->_c == c){
+            if(ptr->__c == c){
                 do
-                    ptr = ptr->_next;
-                while(ptr != NULL && ptr->_c == c);
+                    ptr = ptr->__next;
+                while(ptr != NULL && ptr->__c == c);
 
                 if(ptr != NULL){
                     sa.strs[++index] = string_new();
-                    sa.strs[index].push(&sa.strs[index], ptr->_c);
-                    ptr = ptr->_next;
+                    sa.strs[index].push(&sa.strs[index], ptr->__c);
+                    ptr = ptr->__next;
                 }
             }else{
-                sa.strs[index].push(&sa.strs[index], ptr->_c);
-                ptr = ptr->_next;
+                sa.strs[index].push(&sa.strs[index], ptr->__c);
+                ptr = ptr->__next;
             }
         }
     }
@@ -799,13 +1083,13 @@ StringArray str_split(const String* self, const char c){
  */
 void str_replace(String* self, const char old, const char replacement){
     char fn_name[] = "void replace(String* self, const char old, const char replacement)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
-    while(ptr != NULL && ptr->_c != old) ptr = ptr->_next;
-    if(ptr != NULL && ptr->_c == old) ptr->_c = replacement;
+    while(ptr != NULL && ptr->__c != old) ptr = ptr->__next;
+    if(ptr != NULL && ptr->__c == old) ptr->__c = replacement;
 
     ptr = NULL;
 }
@@ -819,14 +1103,14 @@ void str_replace(String* self, const char old, const char replacement){
  */
 void str_replace_all(String* self, const char old, const char replacement){
     char fn_name[] = "void replace_all(String* self, const char old, const char replacement)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
     while(ptr != NULL){
-        if(ptr->_c == old) ptr->_c = replacement;
-        ptr = ptr->_next;
+        if(ptr->__c == old) ptr->__c = replacement;
+        ptr = ptr->__next;
     }
 
     ptr = NULL;
@@ -841,27 +1125,27 @@ void str_replace_all(String* self, const char old, const char replacement){
  */
 char str_remove(String* self, const size_t index){
     char fn_name[] = "char remove(String* self, const size_t index)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
 
     char c = ' ';
 
     if(index == self->len - 1){
-        c = self->_last->_c;
-        self->_last = self->_last->_prev;
-        self->_last->_free(self->_last->_next);
-        self->_last->_next = NULL;
+        c = self->__last->__c;
+        self->__last = self->__last->__prev;
+        strcell_free(self->__last->__next);
+        self->__last->__next = NULL;
     }else{
-        _StringCell* ptr = self->_first->_next;
+        _StringCell* ptr = self->__first->__next;
 
         for(size_t i = 0; i < index; i++)
-            ptr = ptr->_next;
+            ptr = ptr->__next;
 
-        c = ptr->_c;
-        ptr->_prev->_next = ptr->_next;
-        ptr->_next->_prev = ptr->_prev;
-        ptr->_free(ptr);
+        c = ptr->__c;
+        ptr->__prev->__next = ptr->__next;
+        ptr->__next->__prev = ptr->__prev;
+        strcell_free(ptr);
         ptr = NULL;
     }
 
@@ -879,29 +1163,29 @@ char str_remove(String* self, const size_t index){
  */
 int str_remove_char(String* self, const char c){
     char fn_name[] = "int remove_char(String* self, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     int removed = 0;
 
-    while(ptr != NULL && ptr->_c != c) ptr = ptr->_next;
+    while(ptr != NULL && ptr->__c != c) ptr = ptr->__next;
 
-    if(ptr != NULL && ptr->_c == c){
-        if(ptr == self->_last){
-            ptr = ptr->_prev;
-            self->_last = ptr;
-            ptr->_free(ptr->_next);
+    if(ptr != NULL && ptr->__c == c){
+        if(ptr == self->__last){
+            ptr = ptr->__prev;
+            self->__last = ptr;
+            strcell_free(ptr->__next);
 
-            ptr->_next = NULL;
+            ptr->__next = NULL;
             ptr = NULL;
         }else{
-            ptr->_prev->_next = ptr->_next;
+            ptr->__prev->__next = ptr->__next;
 
-            if(ptr != self->_last)
-                ptr->_next->_prev = ptr->_prev;
+            if(ptr != self->__last)
+                ptr->__next->__prev = ptr->__prev;
             
-            ptr->_free(ptr);
+            strcell_free(ptr);
         }
 
         self->len--;
@@ -922,37 +1206,37 @@ int str_remove_char(String* self, const char c){
  */
 int str_remove_all(String* self, const char c){
     char fn_name[] = "int remove_all(String* self, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr1 = self->_first->_next;
+    _StringCell* ptr1 = self->__first->__next;
     _StringCell* ptr2 = NULL;
     int removed = 0;
 
     while(ptr1 != NULL){
-        if(ptr1->_c == c){
+        if(ptr1->__c == c){
             ptr2 = ptr1;
-            ptr1 = ptr1->_next;
+            ptr1 = ptr1->__next;
 
-            if(ptr2 == self->_last){
-                ptr2 = ptr2->_prev;
-                self->_last = ptr2;
-                ptr2->_free(ptr2->_next);
+            if(ptr2 == self->__last){
+                ptr2 = ptr2->__prev;
+                self->__last = ptr2;
+                strcell_free(ptr2->__next);
 
-                ptr2->_next = NULL;
+                ptr2->__next = NULL;
                 ptr2 = NULL;
             }else{
-                ptr2->_prev->_next = ptr2->_next;
+                ptr2->__prev->__next = ptr2->__next;
 
-                if(ptr2 != self->_last)
-                    ptr2->_next->_prev = ptr2->_prev;
+                if(ptr2 != self->__last)
+                    ptr2->__next->__prev = ptr2->__prev;
                 
-                ptr2->_free(ptr2);
+                strcell_free(ptr2);
             }
 
             removed++;
         }else{
-            ptr1 = ptr1->_next;
+            ptr1 = ptr1->__next;
         }
     }
 
@@ -972,63 +1256,63 @@ int str_remove_all(String* self, const char c){
  */
 int str_remove_str(String* self, const String* str){
     char fn_name[] = "int remove_str(String* self, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_first_cell_test(fn_name, "str", str->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_first_cell_test(fn_name, "str", str->__first);
 
     int removed = 0;
     
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
-        _StringCell* ptr1 = self->_first->_next;
-        _StringCell* ptr2 = self->_first->_next;
-        _StringCell* ptr3 = str->_first->_next;
+        _StringCell* ptr1 = self->__first->__next;
+        _StringCell* ptr2 = self->__first->__next;
+        _StringCell* ptr3 = str->__first->__next;
 
         while(ptr1 != NULL && ptr2 != NULL && !removed){
-            if(ptr1->_c == ptr3->_c){
-                ptr2 = ptr1->_next;
-                ptr3 = ptr3->_next;
+            if(ptr1->__c == ptr3->__c){
+                ptr2 = ptr1->__next;
+                ptr3 = ptr3->__next;
 
                 while(ptr2 != NULL && ptr3 != NULL){
-                    if(ptr2->_c == ptr3->_c){
-                        ptr2 = ptr2->_next;
-                        ptr3 = ptr3->_next;
+                    if(ptr2->__c == ptr3->__c){
+                        ptr2 = ptr2->__next;
+                        ptr3 = ptr3->__next;
                     }else{
                         ptr2 = NULL;
                     }
                 }
 
                 if(ptr2 == NULL && ptr3 == NULL){
-                    ptr1 = ptr1->_prev;
-                    ptr2 = self->_last;
-                    self->_last = ptr1;
+                    ptr1 = ptr1->__prev;
+                    ptr2 = self->__last;
+                    self->__last = ptr1;
                     
                     while(ptr2 != ptr1){
-                        ptr2 = ptr2->_prev;
-                        ptr2->_free(ptr2->_next);
+                        ptr2 = ptr2->__prev;
+                        strcell_free(ptr2->__next);
                     }
 
-                    self->_last->_next = NULL;
+                    self->__last->__next = NULL;
                     removed = 1;
                 }else if(ptr3 == NULL){
-                    ptr1 = ptr1->_prev;
-                    ptr3 = ptr1->_next;
+                    ptr1 = ptr1->__prev;
+                    ptr3 = ptr1->__next;
                     
                     while(ptr3 != ptr2){
-                        ptr3 = ptr3->_next;
-                        ptr3->_free(ptr3->_prev);
+                        ptr3 = ptr3->__next;
+                        strcell_free(ptr3->__prev);
                     }
 
-                    ptr1->_next = ptr2;
-                    ptr2->_prev = ptr1;
+                    ptr1->__next = ptr2;
+                    ptr2->__prev = ptr1;
                     removed = 1;
                 }else{
-                    ptr3 = str->_first->_next;
+                    ptr3 = str->__first->__next;
                     ptr2 = ptr1;
-                    ptr1 = ptr1->_next;
+                    ptr1 = ptr1->__next;
                 }
             }else{
-                ptr1 = ptr1->_next;
+                ptr1 = ptr1->__next;
             }
         }
 
@@ -1052,27 +1336,27 @@ int str_remove_str(String* self, const String* str){
  */
 int str_remove_chars(String* self, const char* chars){
     char fn_name[] = "int remove_chars(String* self, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
+    str_first_cell_test(fn_name, "self", self->__first);
 
     int removed = 0;
-    size_t len = __str_strlen(chars);
+    size_t len = str_strlen(chars);
     
     if(!self->is_empty(self) && len > 0 && self->len >= len){
-        _StringCell* ptr1 = self->_first->_next;
-        _StringCell* ptr2 = self->_first->_next;
+        _StringCell* ptr1 = self->__first->__next;
+        _StringCell* ptr2 = self->__first->__next;
         _StringCell* ptr3 = NULL;
         size_t index = 0;
 
         while(ptr1 != NULL && ptr2 != NULL && !removed){
-            if(ptr1->_c == chars[index]){
-                ptr2 = ptr1->_next;
+            if(ptr1->__c == chars[index]){
+                ptr2 = ptr1->__next;
                 index++;
 
                 while(ptr2 != NULL && index < len){
-                    if(ptr2->_c == chars[index]){
-                        ptr2 = ptr2->_next;
+                    if(ptr2->__c == chars[index]){
+                        ptr2 = ptr2->__next;
                         index++;
                     }else{
                         ptr2 = NULL;
@@ -1080,36 +1364,36 @@ int str_remove_chars(String* self, const char* chars){
                 }
 
                 if(ptr2 == NULL && index == len){
-                    ptr1 = ptr1->_prev;
-                    ptr2 = self->_last;
-                    self->_last = ptr1;
+                    ptr1 = ptr1->__prev;
+                    ptr2 = self->__last;
+                    self->__last = ptr1;
                     
                     while(ptr2 != ptr1){
-                        ptr2 = ptr2->_prev;
-                        ptr2->_free(ptr2->_next);
+                        ptr2 = ptr2->__prev;
+                        strcell_free(ptr2->__next);
                     }
 
-                    self->_last->_next = NULL;
+                    self->__last->__next = NULL;
                     removed = 1;
                 }else if(index == len){
-                    ptr1 = ptr1->_prev;
-                    ptr3 = ptr1->_next;
+                    ptr1 = ptr1->__prev;
+                    ptr3 = ptr1->__next;
                     
                     while(ptr3 != ptr2){
-                        ptr3 = ptr3->_next;
-                        ptr3->_free(ptr3->_prev);
+                        ptr3 = ptr3->__next;
+                        strcell_free(ptr3->__prev);
                     }
 
-                    ptr1->_next = ptr2;
-                    ptr2->_prev = ptr1;
+                    ptr1->__next = ptr2;
+                    ptr2->__prev = ptr1;
                     removed = 1;
                 }else{
                     index = 0;;
                     ptr2 = ptr1;
-                    ptr1 = ptr1->_next;
+                    ptr1 = ptr1->__next;
                 }
             }else{
-                ptr1 = ptr1->_next;
+                ptr1 = ptr1->__next;
             }
         }
 
@@ -1134,39 +1418,39 @@ int str_remove_chars(String* self, const char* chars){
  */
 String str_drain(String* self, const size_t start, const size_t end){
     char fn_name[] = "String drain(String* self, const size_t start, const size_t end)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_index_out_of_bounds_test(fn_name, start, self->len, start > self->len);
-    __str_invalid_index_test(fn_name, "start", "end", start, end);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_index_out_of_bounds_test(fn_name, start, self->len, start > self->len);
+    str_invalid_index_test(fn_name, "start", "end", start, end);
 
     String str = string_new();
-    _StringCell* ptr1 = self->_first->_next;
+    _StringCell* ptr1 = self->__first->__next;
     _StringCell* ptr2 = NULL;
 
     for(size_t i = 0; i < start; i++)
-        ptr1 = ptr1->_next;
+        ptr1 = ptr1->__next;
 
     ptr2 = ptr1;
 
     for(size_t i = start; i < end - 1; i++)
-        ptr2 = ptr2->_next;
+        ptr2 = ptr2->__next;
     
-    str._first->_next = ptr1;
-    str._last = ptr2;
+    str.__first->__next = ptr1;
+    str.__last = ptr2;
     
-    ptr1 = ptr1->_prev;
-    if(ptr2 != NULL) ptr2 = ptr2->_next;
+    ptr1 = ptr1->__prev;
+    if(ptr2 != NULL) ptr2 = ptr2->__next;
 
     if(ptr2 == NULL){
-        self->_last = ptr1;
-        ptr1->_next = NULL;
+        self->__last = ptr1;
+        ptr1->__next = NULL;
     }else{
-        ptr1->_next = ptr2;
-        ptr2->_prev = ptr1;
+        ptr1->__next = ptr2;
+        ptr2->__prev = ptr1;
     }
 
-    str._last->_next = NULL;
-    str._first->_next->_prev = str._first;
+    str.__last->__next = NULL;
+    str.__first->__next->__prev = str.__first;
 
     str.len = end - start;
     self->len -= str.len;
@@ -1199,30 +1483,30 @@ void str_drain_and_free(String* self, const size_t start, const size_t end){
  */
 void str_reap(String* self, const size_t start, const size_t end){
     char fn_name[] = "void reap(String* self, const size_t start, const size_t end)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_index_out_of_bounds_test(fn_name, start, self->len, start > self->len);
-    __str_invalid_index_test(fn_name, "start", "end", start, end);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_index_out_of_bounds_test(fn_name, start, self->len, start > self->len);
+    str_invalid_index_test(fn_name, "start", "end", start, end);
     
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
     for(size_t i = 0; i < start; i++){
-        ptr = ptr->_next;
-        ptr->_free(ptr->_prev);
+        ptr = ptr->__next;
+        strcell_free(ptr->__prev);
     }
 
-    self->_first->_next = ptr;
-    ptr->_prev = self->_first;
+    self->__first->__next = ptr;
+    ptr->__prev = self->__first;
 
-    ptr = self->_last;
+    ptr = self->__last;
 
     for(size_t i = self->len; i > end; i--){
-        ptr = ptr->_prev;
-        ptr->_free(ptr->_next);
+        ptr = ptr->__prev;
+        strcell_free(ptr->__next);
     }
 
-    self->_last = ptr;
-    self->_last->_next = NULL;
+    self->__last = ptr;
+    self->__last->__next = NULL;
 
     self->len = end - start;
     ptr = NULL;
@@ -1238,27 +1522,27 @@ void str_reap(String* self, const size_t start, const size_t end){
  */
 void str_insert(String* self, const size_t index, const char c){
     char fn_name[] = "void insert(String* self, const size_t index, const char c)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
+    str_null_reference_test(fn_name, "self", self);
+    str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
 
-    if(index == self->len){
-        self->push(self, c);
-    }else{
-        _StringCell* ptr = self->_first;
-        _StringCell* tmp = __strcell_new(c);
+    _StringCell* ptr = self->__first;
+    _StringCell* tmp = strcell_new(c);
 
-        for(size_t i = 0; i < index; i++) ptr = ptr->_next;
+    for(size_t i = 0; i < index; i++) ptr = ptr->__next;
 
-        tmp->_prev = ptr;
-        tmp->_next = ptr->_next;
+    tmp->__prev = ptr;
+    tmp->__next = ptr->__next;
 
-        tmp->_prev->_next = tmp;
-        tmp->_next->_prev = tmp;
+    tmp->__prev->__next = tmp;
 
-        self->len++;
-        ptr = NULL;
-        tmp = NULL;
-    }
+    if(tmp->__next != NULL)
+        tmp->__next->__prev = tmp;
+    else
+        self->__last = tmp;    
+
+    self->len++;
+    ptr = NULL;
+    tmp = NULL;
 }
 
 /**
@@ -1270,34 +1554,34 @@ void str_insert(String* self, const size_t index, const char c){
  */
 void str_insert_str(String* self, const size_t index, const String* str){
     char fn_name[] = "void insert_str(String* self, const size_t index, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_first_cell_test(fn_name, "str", str->_first);
-    __str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_first_cell_test(fn_name, "str", str->__first);
+    str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
     
     if(!str->is_empty(str)){
         if(index == self->len){
             self->push_str(self, str);
         }else{
-            _StringCell* ptr1 = self->_first;
+            _StringCell* ptr1 = self->__first;
             _StringCell* ptr2 = NULL;
-            _StringCell* ptr3 = str->_first->_next;
+            _StringCell* ptr3 = str->__first->__next;
 
             for(size_t i = 0; i < index; i++) 
-                ptr1 = ptr1->_next;
+                ptr1 = ptr1->__next;
 
-            ptr2 = ptr1->_next;
+            ptr2 = ptr1->__next;
 
             for(size_t i = 0; i < str->len; i++){
-                ptr1->_next = __strcell_new(ptr3->_c);
-                ptr1->_next->_prev = ptr1;
-                ptr1 = ptr1->_next;
-                ptr3 = ptr3->_next;
+                ptr1->__next = strcell_new(ptr3->__c);
+                ptr1->__next->__prev = ptr1;
+                ptr1 = ptr1->__next;
+                ptr3 = ptr3->__next;
             }
 
-            ptr1->_next = ptr2;
-            ptr2->_prev = ptr1;
+            ptr1->__next = ptr2;
+            ptr2->__prev = ptr1;
 
             ptr1 = NULL;
             ptr2 = NULL;
@@ -1317,33 +1601,33 @@ void str_insert_str(String* self, const size_t index, const String* str){
  */
 void str_insert_chars(String* self, const size_t index, const char* chars){
     char fn_name[] = "void insert_chars(String* self, const size_t index, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
-    __str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
+    str_index_out_of_bounds_test(fn_name, index, self->len, index > self->len);
 
-    size_t len = __str_strlen(chars);
+    size_t len = str_strlen(chars);
 
     if(len > 0){
         if(index == self->len){
             self->push_chars(self, chars);
         }else{
-            _StringCell* ptr1 = self->_first;
+            _StringCell* ptr1 = self->__first;
             _StringCell* ptr2 = NULL;
             size_t chars_index = 0;
 
             for(size_t i = 0; i < index; i++) 
-                ptr1 = ptr1->_next;
+                ptr1 = ptr1->__next;
 
-            ptr2 = ptr1->_next;
+            ptr2 = ptr1->__next;
 
             for(size_t i = 0; i < len; i++){
-                ptr1->_next = __strcell_new(chars[chars_index++]);
-                ptr1->_next->_prev = ptr1;
-                ptr1 = ptr1->_next;
+                ptr1->__next = strcell_new(chars[chars_index++]);
+                ptr1->__next->__prev = ptr1;
+                ptr1 = ptr1->__next;
             }
 
-            ptr1->_next = ptr2;
-            ptr2->_prev = ptr1;
+            ptr1->__next = ptr2;
+            ptr2->__prev = ptr1;
 
             ptr1 = NULL;
             ptr2 = NULL;
@@ -1363,20 +1647,20 @@ void str_insert_chars(String* self, const size_t index, const char* chars){
  */
 int str_starts_with_str(const String* self, const String* str){
     char fn_name[] = "int starts_with_str(const String* self, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_first_cell_test(fn_name, "str", str->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_first_cell_test(fn_name, "str", str->__first);
     
     int starts_with = 0;
 
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
-        _StringCell* ptr1 = self->_first->_next;
-        _StringCell* ptr2 = str->_first->_next;
+        _StringCell* ptr1 = self->__first->__next;
+        _StringCell* ptr2 = str->__first->__next;
 
-        while(ptr2 != NULL && ptr1->_c == ptr2->_c){
-            ptr1 = ptr1->_next;
-            ptr2 = ptr2->_next;
+        while(ptr2 != NULL && ptr1->__c == ptr2->__c){
+            ptr1 = ptr1->__next;
+            ptr2 = ptr2->__next;
         }
 
         if(ptr2 == NULL)
@@ -1399,19 +1683,19 @@ int str_starts_with_str(const String* self, const String* str){
  */
 int str_starts_with_chars(const String* self, const char* chars){
     char fn_name[] = "int starts_with_chars(const String* self, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
+    str_first_cell_test(fn_name, "self", self->__first);
     
     int starts_with = 0;
-    size_t len = __str_strlen(chars);
+    size_t len = str_strlen(chars);
 
     if(!self->is_empty(self) && len > 0 && self->len >= len){
-        _StringCell* ptr = self->_first->_next;
+        _StringCell* ptr = self->__first->__next;
         size_t i = 0;
 
-        while(i < len && ptr->_c == chars[i]){
-            ptr = ptr->_next;
+        while(i < len && ptr->__c == chars[i]){
+            ptr = ptr->__next;
             i++;
         }
 
@@ -1434,21 +1718,21 @@ int str_starts_with_chars(const String* self, const char* chars){
  */
 int str_ends_with_str(const String* self, const String* str){
     char fn_name[] = "int ends_with_str(const String* self, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
     
     int ends_with = 0;
 
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
-        _StringCell* ptr1 = self->_last;
-        _StringCell* ptr2 = str->_last;
+        _StringCell* ptr1 = self->__last;
+        _StringCell* ptr2 = str->__last;
 
-        while(ptr2 != str->_first && ptr1->_c == ptr2->_c){
-            ptr1 = ptr1->_prev;
-            ptr2 = ptr2->_prev;
+        while(ptr2 != str->__first && ptr1->__c == ptr2->__c){
+            ptr1 = ptr1->__prev;
+            ptr2 = ptr2->__prev;
         }
 
-        if(ptr2 == str->_first)
+        if(ptr2 == str->__first)
             ends_with = 1;
 
         ptr1 = NULL;
@@ -1468,17 +1752,17 @@ int str_ends_with_str(const String* self, const String* str){
  */
 int str_ends_with_chars(const String* self, const char* chars){
     char fn_name[] = "int ends_with_chars(const String* self, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
 
     int ends_with = 0;
-    size_t i = __str_strlen(chars);
+    size_t i = str_strlen(chars);
 
     if(!self->is_empty(self) && i > 0 && self->len >= i){
-        _StringCell* ptr = self->_last;
+        _StringCell* ptr = self->__last;
 
-        while(i > 0 && ptr->_c == chars[i - 1]){
-            ptr = ptr->_prev;
+        while(i > 0 && ptr->__c == chars[i - 1]){
+            ptr = ptr->__prev;
             i--;
         }
 
@@ -1501,41 +1785,41 @@ int str_ends_with_chars(const String* self, const char* chars){
  */
 int str_find_str(const String* self, const String* str){
     char fn_name[] = "int find_str(const String* self, const String* str)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "str", str);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_first_cell_test(fn_name, "str", str->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "str", str);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_first_cell_test(fn_name, "str", str->__first);
 
     int index = -1;
     
     if(!self->is_empty(self) && !str->is_empty(str) && self->len >= str->len){
-        _StringCell* ptr1 = self->_first->_next;
-        _StringCell* ptr2 = self->_first->_next;
-        _StringCell* ptr3 = str->_first->_next;
+        _StringCell* ptr1 = self->__first->__next;
+        _StringCell* ptr2 = self->__first->__next;
+        _StringCell* ptr3 = str->__first->__next;
 
         while(ptr1 != NULL && ptr2 != NULL && ptr3 != NULL){
             index++;
 
-            if(ptr1->_c == ptr3->_c){
-                ptr2 = ptr1->_next;
-                ptr3 = ptr3->_next;
+            if(ptr1->__c == ptr3->__c){
+                ptr2 = ptr1->__next;
+                ptr3 = ptr3->__next;
 
                 while(ptr2 != NULL && ptr3 != NULL){
-                    if(ptr2->_c == ptr3->_c){
-                        ptr2 = ptr2->_next;
-                        ptr3 = ptr3->_next;
+                    if(ptr2->__c == ptr3->__c){
+                        ptr2 = ptr2->__next;
+                        ptr3 = ptr3->__next;
                     }else{
                         ptr2 = NULL;
                     }
                 }
 
                 if(ptr3 != NULL){
-                    ptr3 = str->_first->_next;
+                    ptr3 = str->__first->__next;
                     ptr2 = ptr1;
-                    ptr1 = ptr1->_next;
+                    ptr1 = ptr1->__next;
                 }
             }else{
-                ptr1 = ptr1->_next;
+                ptr1 = ptr1->__next;
             }
         }
 
@@ -1559,28 +1843,28 @@ int str_find_str(const String* self, const String* str){
  */
 int str_find_chars(const String* self, const char* chars){
     char fn_name[] = "int find_chars(const String* self, const char* chars)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_null_reference_test(fn_name, "chars", chars);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "chars", chars);
+    str_first_cell_test(fn_name, "self", self->__first);
     
     int index = -1;
-    size_t len = __str_strlen(chars);
+    size_t len = str_strlen(chars);
     
     if(!self->is_empty(self) && len && self->len >= len){
-        _StringCell* ptr1 = self->_first->_next;
-        _StringCell* ptr2 = self->_first->_next;
+        _StringCell* ptr1 = self->__first->__next;
+        _StringCell* ptr2 = self->__first->__next;
         size_t i = 0;
 
         while(ptr1 != NULL && ptr2 != NULL && i < len){
             index++;
 
-            if(ptr1->_c == chars[i]){
-                ptr2 = ptr1->_next;
+            if(ptr1->__c == chars[i]){
+                ptr2 = ptr1->__next;
                 i++;
 
                 while(ptr2 != NULL && i < len){
-                    if(ptr2->_c == chars[i]){
-                        ptr2 = ptr2->_next;
+                    if(ptr2->__c == chars[i]){
+                        ptr2 = ptr2->__next;
                         i++;
                     }else{
                         ptr2 = NULL;
@@ -1590,10 +1874,10 @@ int str_find_chars(const String* self, const char* chars){
                 if(i < len){
                     i = 0;
                     ptr2 = ptr1;
-                    ptr1 = ptr1->_next;
+                    ptr1 = ptr1->__next;
                 }
             }else{
-                ptr1 = ptr1->_next;
+                ptr1 = ptr1->__next;
             }
         }
 
@@ -1638,19 +1922,19 @@ int str_contains_chars(const String* self, const char* chars){
  */
 int* str_to_bytes(const String* self){
     char fn_name[] = "int* to_bytes(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_empty_test(fn_name, "self", self->is_empty(self));
     
     int* bytes = (int*)malloc(self->len * sizeof(int));
-    __str_memory_test(fn_name, bytes);
+    str_memory_test(fn_name, bytes);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     size_t i = 0;
 
     while(ptr != NULL){
-        bytes[i++] = ptr->_c;
-        ptr = ptr->_next;
+        bytes[i++] = ptr->__c;
+        ptr = ptr->__next;
     }
 
     return bytes;
@@ -1664,34 +1948,34 @@ int* str_to_bytes(const String* self){
  */
 int str_parse_int(const String* self){
     char fn_name[] = "int parse_int(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_empty_test(fn_name, "self", self->is_empty(self));
 
     int n = 0;
     int negative = 0;
     size_t steps = 1;
     size_t index = self->len;
-    _StringCell* ptr = self->_last;
+    _StringCell* ptr = self->__last;
 
-    while(ptr != self->_first->_next){
-        __str_nan_test(fn_name, index, ptr->_c);
+    while(ptr != self->__first->__next){
+        str_nan_test(fn_name, index, ptr->__c);
         
-        n += (ptr->_c - 48) * steps;
+        n += (ptr->__c - 48) * steps;
 
         steps *= 10;
         index--;
-        ptr = ptr->_prev;
+        ptr = ptr->__prev;
     }
 
-    ptr = self->_first->_next;
+    ptr = self->__first->__next;
     
-    if(ptr->_c == '-'){
+    if(ptr->__c == '-'){
         negative = 1;
-    }else if(self->_first->_next->_c != '+'){
-        __str_nan_test(fn_name, index, ptr->_c);
+    }else if(self->__first->__next->__c != '+'){
+        str_nan_test(fn_name, index, ptr->__c);
         
-        n += (ptr->_c - 48) * steps;
+        n += (ptr->__c - 48) * steps;
     }
 
     ptr = NULL;
@@ -1717,49 +2001,49 @@ float str_parse_float(const String* self){
  */
 double str_parse_double(const String* self){
     char fn_name[] = "double parse_double(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
-    __str_empty_test(fn_name, "self", self->is_empty(self));
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+    str_empty_test(fn_name, "self", self->is_empty(self));
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     double d = 0.0;
     int negative = 0;
     double steps = 1;
     size_t index = 0;
 
-    if(ptr->_c == '-'){
+    if(ptr->__c == '-'){
         negative = 1;
-        ptr = ptr->_next;
-    }else if(ptr->_c == '+'){
-        ptr = ptr->_next;
+        ptr = ptr->__next;
+    }else if(ptr->__c == '+'){
+        ptr = ptr->__next;
     }
 
-    while(ptr != NULL && ptr->_c != '.'){
-        if(ptr->_c != '.') 
-            __str_nan_test(fn_name, index + 1, ptr->_c);
+    while(ptr != NULL && ptr->__c != '.'){
+        if(ptr->__c != '.') 
+            str_nan_test(fn_name, index + 1, ptr->__c);
         
         d *= steps;
-        d += ptr->_c - 48;
+        d += ptr->__c - 48;
         steps *= 10;
         
         index++;
-        ptr = ptr->_next;
+        ptr = ptr->__next;
     }
 
-    if(ptr != NULL && ptr->_c == '.'){
-        ptr = ptr->_next;
+    if(ptr != NULL && ptr->__c == '.'){
+        ptr = ptr->__next;
         steps = 0.1;
         index++;
     }
 
     while(ptr != NULL){
-        __str_nan_test(fn_name, index + 1, ptr->_c);
+        str_nan_test(fn_name, index + 1, ptr->__c);
 
-        d += (ptr->_c - 48) * steps;
+        d += (ptr->__c - 48) * steps;
         steps /= 10;
 
         index++;
-        ptr = ptr->_next;
+        ptr = ptr->__next;
     }
 
     return negative ? d * -1 : d;
@@ -1773,24 +2057,24 @@ double str_parse_double(const String* self){
  */
 int str_parse_bool(const String* self){
     char fn_name[] = "int parse_bool(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
     int b = 0;
 
     if(ptr != NULL){
         if(self->len == 4 && 
-          (ptr->_c == 'T' || ptr->_c == 't') &&
-           ptr->_next != NULL && 
-          (ptr->_next->_c == 'R' || ptr->_next->_c == 'r') &&
-           ptr->_next->_next != NULL && 
-          (ptr->_next->_next->_c == 'U' || ptr->_next->_next->_c == 'u') && 
-           ptr->_next->_next->_next != NULL && 
-          (ptr->_next->_next->_next->_c == 'E' || ptr->_next->_next->_next->_c == 'e')){
+          (ptr->__c == 'T' || ptr->__c == 't') &&
+           ptr->__next != NULL && 
+          (ptr->__next->__c == 'R' || ptr->__next->__c == 'r') &&
+           ptr->__next->__next != NULL && 
+          (ptr->__next->__next->__c == 'U' || ptr->__next->__next->__c == 'u') && 
+           ptr->__next->__next->__next != NULL && 
+          (ptr->__next->__next->__next->__c == 'E' || ptr->__next->__next->__next->__c == 'e')){
 
            b = 1;
-        }else if(self->len == 1 && ptr->_c == '1') b = 1;
+        }else if(self->len == 1 && ptr->__c == '1') b = 1;
     }
 
     ptr = NULL;
@@ -1805,17 +2089,17 @@ int str_parse_bool(const String* self){
  */
 void str_to_lowercase(String* self){
     char fn_name[] = "void lowercase(String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
     
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
     while(ptr != NULL){
-        if('A' <= ptr->_c && ptr->_c <= 'Z'){
-            ptr->_c += 32;
+        if('A' <= ptr->__c && ptr->__c <= 'Z'){
+            ptr->__c += 32;
         }
 
-        ptr = ptr->_next;
+        ptr = ptr->__next;
     }
 }
 
@@ -1826,17 +2110,17 @@ void str_to_lowercase(String* self){
  */
 void str_to_uppercase(String* self){
     char fn_name[] = "void to_uppercase(String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->_first->_next;
+    _StringCell* ptr = self->__first->__next;
 
     while(ptr != NULL){
-        if('a' <= ptr->_c && ptr->_c <= 'z'){
-            ptr->_c -= 32;
+        if('a' <= ptr->__c && ptr->__c <= 'z'){
+            ptr->__c -= 32;
         }
 
-        ptr = ptr->_next;
+        ptr = ptr->__next;
     }
 }
 
@@ -1847,22 +2131,22 @@ void str_to_uppercase(String* self){
  */
 void str_title(String* self){
     char fn_name[] = "void title(String* self)";
-    __str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "self", self);
     
-    _StringCell* ptr = self->_first;
+    _StringCell* ptr = self->__first;
 
     while(ptr != NULL){
         do
-            ptr = ptr->_next;
-        while(ptr != NULL && (ptr->_c == ' ' || ptr->_c == '\r' || ptr->_c == '\n'));
+            ptr = ptr->__next;
+        while(ptr != NULL && (ptr->__c == ' ' || ptr->__c == '\r' || ptr->__c == '\n'));
         
         if(ptr != NULL){
-            if('a' <= ptr->_c && ptr->_c <= 'z')
-                ptr->_c -= 32;
+            if('a' <= ptr->__c && ptr->__c <= 'z')
+                ptr->__c -= 32;
 
             do
-                ptr = ptr->_next;
-            while(ptr != NULL && (ptr->_c != ' ' && ptr->_c != '\r' && ptr->_c != '\n'));
+                ptr = ptr->__next;
+            while(ptr != NULL && (ptr->__c != ' ' && ptr->__c != '\r' && ptr->__c != '\n'));
         }
     }
 }
@@ -1874,18 +2158,40 @@ void str_title(String* self){
  */
 void str_capitalize(String* self){
     char fn_name[] = "void capitalize(String* self)";
-    __str_null_reference_test(fn_name, "self", self);
+    str_null_reference_test(fn_name, "self", self);
 
-    _StringCell* ptr = self->_first;
+    _StringCell* ptr = self->__first;
 
     do
-        ptr = ptr->_next;
-    while(ptr != NULL && (ptr->_c == ' ' || ptr->_c == '\r' || ptr->_c == '\n'));
+        ptr = ptr->__next;
+    while(ptr != NULL && (ptr->__c == ' ' || ptr->__c == '\r' || ptr->__c == '\n'));
 
-    if(ptr != NULL && 'a' <= ptr->_c && ptr->_c <= 'z')
-        ptr->_c -= 32;
+    if(ptr != NULL && 'a' <= ptr->__c && ptr->__c <= 'z')
+        ptr->__c -= 32;
 
     ptr = NULL;
+}
+
+/**
+ * @brief Deletes every char from the string, until it is empty
+ * 
+ * @param self String to be cleared
+ */
+void str_clear(String* self){
+    char fn_name[] = "void clear(String* self)";
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
+
+    _StringCell* ptr = self->__last;
+
+    while(ptr != self->__first){
+        ptr = ptr->__prev;
+        strcell_free(ptr->__next);
+    }
+
+    strcell_free(ptr);
+    ptr = NULL;
+    self->__last = self->__first;
 }
 
 /**
@@ -1896,16 +2202,11 @@ void str_capitalize(String* self){
  */
 String str_clone(const String* self){
     char fn_name[] = "String clone(const String* self)";
-    __str_null_reference_test(fn_name, "self", self);
-    __str_first_cell_test(fn_name, "self", self->_first);
+    str_null_reference_test(fn_name, "self", self);
+    str_first_cell_test(fn_name, "self", self->__first);
     
     String str = string_new();
-    _StringCell* ptr = self->_first->_next;
-
-    while(ptr != NULL){
-        str.push(&str, ptr->_c);
-        ptr = ptr->_next;
-    }
+    str.push_str(&str, self);
 
     return str;
 }
@@ -1918,24 +2219,18 @@ String str_clone(const String* self){
  */
 void str_free(String* self){
     if(self != NULL && !self->is_empty(self)){
-        _StringCell* ptr = self->_last;
+        self->clear(self);
 
-        while(ptr != self->_first){
-            ptr = ptr->_prev;
-            ptr->_free(ptr->_next);
-        }
-
-        ptr->_free(ptr);
-        ptr = NULL;
-
-        self->_first = NULL;
-        self->_last = NULL;
+        self->__first = NULL;
+        self->__last = NULL;
 
         self->is_empty = NULL;
+        self->first = NULL;
+        self->last = NULL;
         self->push = NULL;
         self->push_chars = NULL;
         self->push_str = NULL;
-        self->nth = NULL;
+        self->get = NULL;
         self->set = NULL;
         self->print = NULL;
         self->println = NULL;
@@ -1944,6 +2239,8 @@ void str_free(String* self){
         self->contains = NULL;
         self->substring = NULL;
         self->trim = NULL;
+        self->trim_left = NULL;
+        self->trim_right = NULL;
         self->compare_to_str = NULL;
         self->compare_to_chars = NULL;
         self->equals_str = NULL;
@@ -1979,6 +2276,7 @@ void str_free(String* self){
         self->to_uppercase = NULL;
         self->title = NULL;
         self->capitalize = NULL;
+        self->clear = NULL;
         self->clone = NULL;
         self->free = NULL;
     }
@@ -2030,7 +2328,7 @@ void strarray_free(StringArray* self){
  * @param chars string to count the length
  * @return length of string
  */
-size_t __str_strlen(const char* chars){
+static size_t str_strlen(const char* chars){
     size_t len = 0;
 
     while(chars[len]){
@@ -2049,7 +2347,7 @@ size_t __str_strlen(const char* chars){
  * @param fn name of the function
  * @param test allocated pointer
  */
-void __str_memory_test(const char* fn, const void* test){
+static void str_memory_test(const char* fn, const void* test){
     if(test == NULL){
         printf("\nString error at:\n");
         printf("`%s`\n\n", fn);
@@ -2067,7 +2365,7 @@ void __str_memory_test(const char* fn, const void* test){
  * @param arg name of the argument
  * @param test String to be tested
  */
-void __str_null_reference_test(const char* fn, const char* arg, const void* test){
+static void str_null_reference_test(const char* fn, const char* arg, const void* test){
     if(test == NULL){
         printf("\nString error at:\n");
         printf("`%s`\n\n", fn);
@@ -2087,7 +2385,7 @@ void __str_null_reference_test(const char* fn, const char* arg, const void* test
  * @param arg name of the argument
  * @param test StringCell to be tested
  */
-void __str_first_cell_test(const char* fn, const char* arg, const void* test){
+static void str_first_cell_test(const char* fn, const char* arg, const void* test){
     if(test == NULL){
         printf("\nString error at:\n");
         printf("`%s`\n\n", fn);
@@ -2107,7 +2405,7 @@ void __str_first_cell_test(const char* fn, const char* arg, const void* test){
  * @param arg name of the argument
  * @param empty boolean indicating if String is empty
  */
-void __str_empty_test(const char* fn, const char* arg, const int empty){
+static void str_empty_test(const char* fn, const char* arg, const int empty){
     if(empty){
         printf("\nString error at:\n");
         printf("`%s`\n\n", fn);
@@ -2127,7 +2425,7 @@ void __str_empty_test(const char* fn, const char* arg, const int empty){
  * @param len length to be tested
  * @param test result of test
  */
-void __str_index_out_of_bounds_test(const char* fn, const size_t index, const size_t len, const int test){
+static void str_index_out_of_bounds_test(const char* fn, const size_t index, const size_t len, const int test){
     if(test){
         printf("\nString error at: \n");
         printf("`%s`\n\n", fn);
@@ -2148,7 +2446,7 @@ void __str_index_out_of_bounds_test(const char* fn, const size_t index, const si
  * @param i first index
  * @param j second index
  */
-void __str_invalid_index_test(const char* fn, const char* i_name, const char* j_name, const size_t i, const size_t j){
+static void str_invalid_index_test(const char* fn, const char* i_name, const char* j_name, const size_t i, const size_t j){
     if(i > j){
         printf("\nString error at: \n");
         printf("`%s`\n\n", fn);
@@ -2166,13 +2464,29 @@ void __str_invalid_index_test(const char* fn, const char* i_name, const char* j_
  * @param index index of char
  * @param c char to test
  */
-void __str_nan_test(const char* fn, const size_t index, const char c){
+static void str_nan_test(const char* fn, const size_t index, const char c){
     if(!('0' <= c && c <= '9')){
         printf("\nString error at:\n");
         printf("`%s`\n\n", fn);
         printf("-> char at index `%ld` (%c) is not a number\n", index - 1, c);
         exit(1);
     }
+}
+
+/**
+ * @brief Exits the program due to an incorret formatting in string
+ * 
+ * @warning Not intended for public use
+ * 
+ * @param fn name of the function
+ * @param prefix optional format prefix
+ * @param c incorrect format
+ */
+static void str_format_error(const char* fn, const char* prefix, const char c){
+    printf("\nString error at:\n");
+    printf("`%s`\n\n", fn);
+    printf("-> format `%%%s%c` is invalid\n", prefix, c);
+    exit(1);
 }
 
 #endif
