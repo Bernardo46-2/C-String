@@ -12,6 +12,6 @@ My implementation of strings in C using linked lists (because I like linked list
 
 - Methods that interact with another string have two different implementations: one for interacting with a char* and other for a String* (e.g. `str_compare_to_str(const String*, const String*)` and `str_compare_to_chars(const String*, const char*)`)
 
-- Everything is written in a single .h file due to laziness but it's all organized to be really easy to move the functions implementations to a .c file if one wishes to do so
+- Everything is written in a single .h file due to laziness but it's all organized to be really easy to move the function implementations to a .c file if one wishes to do so
 
 - What each method does is documented on the .h file
