@@ -10,7 +10,7 @@ My implementation of strings in C using linked lists (because I like linked list
 
 - Structs and attributes prefixed with `_` or `__` are supposed to be protected/private and should not be used directly
 
-- Methods that interact with another string have two different implementations: one for interacting with a char* and other for a String* (e.g. `str_compare_to_str(const String*, const String*)` and `str_compare_to_chars(const String*, const char*)`)
+- Methods that interact with another string have two different implementations: one for interacting with a char* and another for a String* (e.g. `str_compare_to_str(const String*, const String*)` and `str_compare_to_chars(const String*, const char*)`), but both methods do the same thing
 
 - Everything is written in a single .h file due to laziness but it's all organized to be really easy to move the function implementations to a .c file if one wishes to do so
 
