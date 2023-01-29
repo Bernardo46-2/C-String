@@ -8,7 +8,7 @@
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 2.0.0
+ * @version 2.1.0
  */
 
 
@@ -26,8 +26,10 @@ struct _StringCell_s{
 
 struct _String_s{
     size_t len;
+
     _StringCell* __first;
     _StringCell* __last;
+    
     int (*is_empty)(const String* self);
     char (*first)(const String* self);
     char (*last)(const String* self);
@@ -104,6 +106,7 @@ String string_read_line(const char*, const size_t);
 String string_from_int(int);
 String string_from_size_t(size_t);
 String string_from_float(const float);
+String string_from_double_with_precision(const double d, const int precision);
 String string_from_double(const double);
 String string_from_bool(const unsigned int);
 String string_format(const char*, ...);
@@ -167,7 +170,7 @@ void str_free(String*);
 StringArray strarray_new();
 void strarray_free(StringArray*);
 
-static size_t str_strlen(const char*);
+static inline size_t str_strlen(const char*);
 static void str_memory_test(const char*, const void*);
 static void str_first_cell_test(const char*, const char*, const void*);
 static void str_null_reference_test(const char*, const char*, const void*);
@@ -392,7 +395,7 @@ String string_from_size_t(size_t n){
 }
 
 /**
- * @brief Creates a string from a given float
+ * @brief Creates a string from a given float (with precision 3)
  * 
  * @param f float to be used
  * @return String containing the given float
@@ -402,15 +405,15 @@ String string_from_float(const float f){
 }
 
 /**
- * @brief Creates a string from a given double (with precision 3)
+ * @brief Creates a string from a given double with
+ * a given precision
  * 
  * @param d double to be used
  * @return String containing the given double
  */
-String string_from_double(const double d){
+String string_from_double_with_precision(const double d, const int precision){
     String self = string_new();
     short negative = d < 0;
-    int precision = 3;
     int n = (int)d;
     double f = d - n;
 
@@ -433,6 +436,16 @@ String string_from_double(const double d){
     }
 
     return self;
+}
+
+/**
+ * @brief Creates a string from a given double (with precision 3)
+ * 
+ * @param d double to be used
+ * @return String containing the given double
+ */
+String string_from_double(const double d){
+    return string_from_double_with_precision(d, 3);
 }
 
 /**
@@ -527,7 +540,6 @@ String string_format(const char* fmt, ...){
     }
 
     va_end(args);
-    ptr = NULL;
 
     return self;
 }
@@ -747,7 +759,6 @@ char* str_to_chars(const String* self){
     }
 
     str[i] = '\0';
-    ptr = NULL;
 
     return str;
 }
@@ -1112,8 +1123,6 @@ void str_replace_all(String* self, const char old, const char replacement){
         if(ptr->__c == old) ptr->__c = replacement;
         ptr = ptr->__next;
     }
-
-    ptr = NULL;
 }
 
 /**
@@ -1171,14 +1180,13 @@ int str_remove_char(String* self, const char c){
 
     while(ptr != NULL && ptr->__c != c) ptr = ptr->__next;
 
-    if(ptr != NULL && ptr->__c == c){
+    if(ptr != NULL){
         if(ptr == self->__last){
             ptr = ptr->__prev;
             self->__last = ptr;
             strcell_free(ptr->__next);
 
             ptr->__next = NULL;
-            ptr = NULL;
         }else{
             ptr->__prev->__next = ptr->__next;
 
@@ -1190,9 +1198,8 @@ int str_remove_char(String* self, const char c){
 
         self->len--;
         removed = 1;
+        ptr = NULL;
     }
-
-    ptr = NULL;
 
     return removed;
 }
@@ -2328,7 +2335,7 @@ void strarray_free(StringArray* self){
  * @param chars string to count the length
  * @return length of string
  */
-static size_t str_strlen(const char* chars){
+static inline size_t str_strlen(const char* chars){
     size_t len = 0;
 
     while(chars[len]){
