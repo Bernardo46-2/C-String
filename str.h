@@ -8,7 +8,7 @@
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 2.1.0
+ * @version 2.1.1
  */
 
 
@@ -167,7 +167,7 @@ void str_clear(String*);
 String str_clone(const String*);
 void str_free(String*);
 
-StringArray strarray_new();
+static inline StringArray strarray_new();
 void strarray_free(StringArray*);
 
 static inline size_t str_strlen(const char*);
@@ -2297,7 +2297,7 @@ void str_free(String* self){
  * 
  * @return empty StringArray
  */
-StringArray strarray_new(){
+static inline StringArray strarray_new(){
     StringArray sa;
 
     sa.free = strarray_free;
