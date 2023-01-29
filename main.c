@@ -2,6 +2,7 @@
 
 int main(){
     String str1 = string_from("-a-bc  d - e- ");
+    str1.println(&str1);
     StringArray strs = str1.split(&str1, ' ');
     char* chars = NULL;
 
@@ -81,7 +82,7 @@ int main(){
     printf("'%s' %ld\n", chars, str1.len);
     free(chars);
 
-    str2 = string_from_float(2.5);
+    str2 = string_from_double_with_precision(2.5, 6);
     chars = str2.to_chars(&str2);
     printf("'%s' %ld\n", chars, str2.len);
     free(chars);
@@ -121,6 +122,11 @@ int main(){
     str2 = string_from("yo");
 
     str1 = string_format("abc - %d%% - %ld - %f - %s - %c - %S\ndid it work?", 23, 100000000000, 2.5, "test", 'a', &str2);
+    chars = str1.to_chars(&str1);
+    printf("'%s' %ld\n", chars, str1.len);
+    free(chars);
+
+    str1.remove_char(&str1, 'b');
     chars = str1.to_chars(&str1);
     printf("'%s' %ld\n", chars, str1.len);
     free(chars);
