@@ -18,6 +18,8 @@ int main(){
     String str3 = string_from(" yo");
     str2.push_str(&str2, &str3);
 
+    printf("%c %c\n", str2.get(&str2, 2), str2.get(&str2, 6));
+
     chars = str2.to_chars(&str2);
     printf("'%s'\n", chars);
     free(chars);
