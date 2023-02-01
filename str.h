@@ -8,7 +8,7 @@
 /**
  * @brief My implementation of strings in C using linked lists (because I like linked lists)
  * @author Bernardo Marques Fernandes
- * @version 2.1.1
+ * @version 2.1.2
  */
 
 
@@ -170,7 +170,7 @@ void str_free(String*);
 static inline StringArray strarray_new();
 void strarray_free(StringArray*);
 
-static inline size_t str_strlen(const char*);
+static size_t str_strlen(const char*);
 static void str_memory_test(const char*, const void*);
 static void str_first_cell_test(const char*, const char*, const void*);
 static void str_null_reference_test(const char*, const char*, const void*);
@@ -553,7 +553,6 @@ String string_format(const char* fmt, ...){
 int str_is_empty(const String* self){
     char fn_name[] = "int is_empty(const String* self)";
     str_null_reference_test(fn_name, "self", self);
-    
     return self->__first == self->__last;
 }
 
@@ -667,11 +666,16 @@ char str_get(const String* self, const size_t index){
     str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
     str_first_cell_test(fn_name, "self", self->__first);
 
-    _StringCell* ptr = self->__first->__next;
     char c = ' ';
-    
-    for(size_t i = 0; i < index; i++)
-        ptr = ptr->__next;
+    _StringCell* ptr = NULL;
+
+    if(index < self->len / 2){
+        ptr = self->__first->__next;
+        for(size_t i = 0; i < index; i++) ptr = ptr->__next;
+    }else{
+        ptr = self->__last;
+        for(size_t i = self->len - 1; i > index; i--) ptr = ptr->__prev;
+    }
 
     c = ptr->__c;
     ptr = NULL;
@@ -693,9 +697,15 @@ void str_set(String* self, const size_t index, const char c){
     str_empty_test(fn_name, "self", self->is_empty(self));
     str_index_out_of_bounds_test(fn_name, index, self->len, index >= self->len);
 
-    _StringCell* ptr = self->__first->__next;
-
-    for(size_t i = 0; i < index; i++) ptr = ptr->__next;
+    _StringCell* ptr = NULL;
+    
+    if(index < self->len / 2){
+        ptr = self->__first->__next;
+        for(size_t i = 0; i < index; i++) ptr = ptr->__next;
+    }else{
+        ptr = self->__last;
+        for(size_t i = self->len - 1; i > index; i--) ptr = ptr->__prev;
+    }
 
     ptr->__c = c;
     ptr = NULL;
@@ -1417,6 +1427,9 @@ int str_remove_chars(String* self, const char* chars){
 /**
  * @brief Similar method to `substring` but instead of
  * returning a copy, it actually removes it from the string
+ * 
+ * @see `String str_substring(const String*, size_t, size_t)`
+ * for returning a copy of the slice, instead of removing it
  * 
  * @param self string to remove slice from
  * @param start where to start removing slice
@@ -2335,7 +2348,7 @@ void strarray_free(StringArray* self){
  * @param chars string to count the length
  * @return length of string
  */
-static inline size_t str_strlen(const char* chars){
+static size_t str_strlen(const char* chars){
     size_t len = 0;
 
     while(chars[len]){
